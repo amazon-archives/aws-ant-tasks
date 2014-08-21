@@ -1,0 +1,39 @@
+<project name="aws-java-sdk-ant-tasks" basedir="." default="test.all">
+	<path id="tests.classpath">
+		<pathelement location="target/" />
+		<pathelement path="target/aws-java-sdk-ant-tasks-${version}.jar" />
+		<pathelement path="target/aws-java-sdk-ant-tasks-${version}-tests.jar" />
+	</path>
+	<target name="awstasks.setup">
+		<taskdef resource="taskdefs.xml" classpath="target/aws-java-sdk-ant-tasks-${version}.jar" />
+		<taskdef resource="test-taskdefs.xml" classpathref="tests.classpath" />
+	</target>
+
+	<target name="test.s3" depends="awstasks.setup">
+		<setup-s3 file="testfile.txt" />
+		<create-s3-bucket bucketName="uploadfilesettos3testbucket" />
+		<upload-to-s3 bucketName="uploadfilesettos3testbucket" keyPrefix="test/">
+			<fileset file="testfile.txt" />
+		</upload-to-s3>
+		<download-from-s3 bucketName="uploadfilesettos3testbucket" key="test/testfile.txt" file="downloadedfile.txt" />
+		<assert-file-equals firstFile="testfile.txt" secondFile="downloadedfile.txt" />
+		<cleanup-s3 firstFile="downloadedfile.txt" secondFile="testfile.txt" bucketName="uploadfilesettos3testbucket" />
+	</target>
+
+	<target name="test.beanstalk" depends="awstasks.setup">
+		<create-s3-bucket bucketName="deploybeanstalkbucket" />
+		<setup-beanstalk instanceProfile="ElasticBeanstalkProfile" />
+		<create-beanstalk-app applicationName="anttestappname" applicationDescription="anttestappdesc" />
+		<create-beanstalk-env applicationName="anttestappname" cnamePrefix="testdeployapptobeanstalkenv" environmentName="testdeployappenv" environmentDescription="testdeployenvdesc" solutionStackName="64bit Amazon Linux running Tomcat 6">
+			<Setting namespace="aws:autoscaling:launchconfiguration" optionname="IamInstanceProfile" value="ElasticBeanstalkProfile" />
+		</create-beanstalk-env>
+		<test-beanstalk-deployment environmentName="testdeployappenv" />
+		<deploy-beanstalk-app bucketName="deploybeanstalkbucket" versionLabel="version1" versionDescription="testversiondesc" applicationName="anttestappname" environmentName="testdeployappenv" file="test.war" />
+		<test-beanstalk-deployment environmentName="testdeployappenv" />
+		<terminate-beanstalk-env environmentName="testdeployappenv" />
+		<delete-beanstalk-app applicationName="anttestappname" />
+		<cleanup-beanstalk instanceProfile="ElasticBeanstalkProfile" bucketName="deploybeanstalkbucket" />
+	</target>
+
+	<target name="test.all" depends="test.s3,test.beanstalk" />
+</project>

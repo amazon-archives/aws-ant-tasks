@@ -1,0 +1,13 @@
+<antlib>
+	<taskdef name="setup-s3" classname="com.amazonaws.ant.s3.SetUpS3TestsTask" />
+	<taskdef name="assert-file-equals" classname="com.amazonaws.ant.AssertFileEqualsTask" />
+	<taskdef name="cleanup-s3" classname="com.amazonaws.ant.s3.CleanUpS3TestsTask" />
+	<taskdef name="setup-beanstalk"
+		classname="com.amazonaws.ant.elasticbeanstalk.SetUpBeanstalkTestsTask" />
+	<taskdef name="delete-beanstalk-app"
+		classname="com.amazonaws.ant.elasticbeanstalk.DeleteBeanstalkApplicationTask" />
+	<taskdef name="test-beanstalk-deployment"
+		classname="com.amazonaws.ant.elasticbeanstalk.TestSuccessfulBeanstalkDeploymentTask" />
+	<taskdef name="cleanup-beanstalk"
+		classname="com.amazonaws.ant.elasticbeanstalk.CleanUpBeanstalkTestsTask" />
+</antlib>
