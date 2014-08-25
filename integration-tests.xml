@@ -34,6 +34,83 @@
 		<delete-beanstalk-app applicationName="anttestappname" />
 		<cleanup-beanstalk instanceProfile="ElasticBeanstalkProfile" bucketName="deploybeanstalkbucket" />
 	</target>
+	
+	<target name="test.opsworks" depends="awstasks.setup">
+		<setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
+		<create-s3-bucket bucketName="antopsworkstestbucket"/>
+		<upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
+			<fileset file="test.war" />
+		</upload-to-s3>
+		<create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
+		<create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antstack" propertyNameForLayerId="layerId1"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
+		<let-opsworks-instance-reach-state instanceId="${instanceId}" state="online"/>
+		<create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
+		<deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
+			<Command name="deploy" />
+			<InstanceId value="${instanceId1}"/>
+		</deploy-opsworks-app>
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId1}" />
+		<teardown-opsworks-tests bucketName="antopsworkstestbucket" />
+	</target>
+	
+	<target name="test.opsworks.incremental" depends="awstasks.setup">
+		<setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
+		<create-s3-bucket bucketName="antopsworkstestbucket"/>
+		<upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
+			<fileset file="test.war" />
+		</upload-to-s3>
+		<create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
+		<create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antlayer" propertyNameForLayerId="layerId1"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId2"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId3"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId4"/>
+		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId5"/>
 
-	<target name="test.all" depends="test.s3,test.beanstalk" />
+		<let-opsworks-instance-reach-state instanceId="${instanceId1}" state="online"/>
+		<let-opsworks-instance-reach-state instanceId="${instanceId2}" state="online"/>
+		<let-opsworks-instance-reach-state instanceId="${instanceId3}" state="online"/>
+		<let-opsworks-instance-reach-state instanceId="${instanceId4}" state="online"/>
+		<let-opsworks-instance-reach-state instanceId="${instanceId5}" state="online"/>
+
+		<create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
+
+		<incremental-opsworks-deployment>
+			<DeploymentGroup>
+				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
+					<Command name="deploy" />
+					<InstanceId value="${instanceId1}"/>
+				</deploy-opsworks-app>
+				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId2">
+					<Command name="deploy" />
+					<InstanceId value="${instanceId2}"/>
+				</deploy-opsworks-app>
+			</DeploymentGroup>
+			<DeploymentGroup>
+					<deploy-opsworks-app propertyNameForDeploymentId="deploymentId3">
+						<Command name="deploy" />
+						<InstanceId value="${instanceId3}"/>
+					</deploy-opsworks-app>
+					<deploy-opsworks-app propertyNameForDeploymentId="deploymentId4">
+							<Command name="deploy" />
+							<InstanceId value="${instanceId4}"/>
+					</deploy-opsworks-app>
+			</DeploymentGroup>
+			<DeploymentGroup>
+				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId5">
+					<Command name="deploy" />
+					<InstanceId value="${instanceId5}"/>
+				</deploy-opsworks-app>
+			</DeploymentGroup>
+		</incremental-opsworks-deployment>
+		
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId1}"/>
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId2}"/>
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId3}"/>
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId4}"/>
+		<assert-successful-opsworks-deployment deploymentId="${deploymentId5}"/>
+		<teardown-opsworks-tests bucketName="antopsworkstestbucket" />
+	</target>
+	<target name="test.all" depends="test.s3,test.beanstalk, test.opsworks" />
 </project>

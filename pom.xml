@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
-			<version>1.8.4</version>
+			<version>1.8.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ant</groupId>
@@ -103,7 +103,7 @@
 						<configuration>
 							<tasks>
 								<property name="version" value="${version}" />
-								<ant antfile="integration-tests.xml" />
+								<ant antfile="integration-tests.xml" target="test.all" />
 							</tasks>
 						</configuration>
 						<goals>

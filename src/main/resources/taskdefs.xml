@@ -1,15 +1,24 @@
 
 <antlib>
 
-	<taskdef name="create-s3-bucket" classname="com.amazonaws.ant.s3.CreateS3BucketTask" />
-	<taskdef name="upload-to-s3" classname="com.amazonaws.ant.s3.UploadFileSetToS3Task" />
-	<taskdef name="download-from-s3" classname="com.amazonaws.ant.s3.DownloadFileFromS3Task" />
-	<taskdef name="create-beanstalk-app"
-		classname="com.amazonaws.ant.elasticbeanstalk.CreateBeanstalkApplicationTask" />
-	<taskdef name="create-beanstalk-env"
-		classname="com.amazonaws.ant.elasticbeanstalk.CreateBeanstalkEnvironmentTask" />
-	<taskdef name="deploy-beanstalk-app"
-		classname="com.amazonaws.ant.elasticbeanstalk.DeployAppToBeanstalkTask" />
-	<taskdef name="terminate-beanstalk-env"
-		classname="com.amazonaws.ant.elasticbeanstalk.TerminateBeanstalkEnvironmentTask" />
+    <taskdef name="create-s3-bucket" classname="com.amazonaws.ant.s3.CreateS3BucketTask" />
+    <taskdef name="upload-to-s3" classname="com.amazonaws.ant.s3.UploadFileSetToS3Task" />
+    <taskdef name="download-from-s3" classname="com.amazonaws.ant.s3.DownloadFileFromS3Task" />
+    
+    <taskdef name="create-beanstalk-app"
+        classname="com.amazonaws.ant.elasticbeanstalk.CreateBeanstalkApplicationTask" />
+    <taskdef name="create-beanstalk-env"
+        classname="com.amazonaws.ant.elasticbeanstalk.CreateBeanstalkEnvironmentTask" />
+    <taskdef name="deploy-beanstalk-app"
+        classname="com.amazonaws.ant.elasticbeanstalk.DeployAppToBeanstalkTask" />
+    <taskdef name="terminate-beanstalk-env"
+        classname="com.amazonaws.ant.elasticbeanstalk.TerminateBeanstalkEnvironmentTask" />
+        
+    <taskdef name="create-opsworks-app" classname="com.amazonaws.ant.opsworks.CreateAppTask" />
+    <taskdef name="create-opsworks-instance" classname="com.amazonaws.ant.opsworks.CreateInstanceTask" />
+    <taskdef name="create-opsworks-layer" classname="com.amazonaws.ant.opsworks.CreateLayerTask" />
+    <taskdef name="create-opsworks-stack" classname="com.amazonaws.ant.opsworks.CreateStackTask" />
+    <taskdef name="deploy-opsworks-app" classname="com.amazonaws.ant.opsworks.DeployAppTask" />
+    <taskdef name="incremental-opsworks-deployment" classname="com.amazonaws.ant.opsworks.IncrementalDeploymentTask" />
+    <taskdef name="update-opsworks-app" classname="com.amazonaws.ant.opsworks.UpdateAppTask" />
 </antlib>

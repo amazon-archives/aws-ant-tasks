@@ -27,6 +27,9 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentHealth;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentStatus;
+import com.amazonaws.services.opsworks.AWSOpsWorksClient;
+import com.amazonaws.services.opsworks.model.DescribeInstancesRequest;
+import com.amazonaws.services.opsworks.model.Instance;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -110,5 +113,35 @@ public class AWSTestUtils {
                 continue;
             return;
         }
+    }
+
+    public static void waitForOpsworksInstanceToReachState(
+            AWSOpsWorksClient client, String instanceId, String state)
+            throws InterruptedException {
+
+        System.out.println("Waiting for instance " + instanceId
+                + " to transition to " + state);
+        int count = 0;
+        while (true) {
+            Thread.sleep(1000 * 30);
+            if (count++ > 100) {
+                throw new RuntimeException("Never reached " + state);
+            }
+            Instance instance = client
+                    .describeInstances(
+                            new DescribeInstancesRequest()
+                                    .withInstanceIds(instanceId))
+                    .getInstances().get(0);
+            String status = instance.getStatus();
+            System.out.println(status);
+            if (status.contains("failed")) {
+                throw new RuntimeException("instance failed to launch");
+            }
+            if (!status.equalsIgnoreCase(state)) {
+                continue;
+            }
+            return;
+        }
+
     }
 }

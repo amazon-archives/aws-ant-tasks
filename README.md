@@ -213,7 +213,7 @@ Example code specifying a file you've already uploaded to S3:
 ```
 Example code uploading your own local file:
 ```
-<deploy-beanstalk-app bucketName="mybucket" file="path/to/myapp.war" versionLabel="Version1" versionDescription="myversion" applicationName="mybeanstalkapp" environmentName="mybeanstalkenv />
+<deploy-beanstalk-app bucketName="mybucket" file="path/to/myapp.war" versionLabel="Version1" versionDescription="myversion" applicationName="mybeanstalkapp" environmentName="mybeanstalkenv" />
 ```
 
 Terminate environment task
@@ -228,3 +228,341 @@ Parameters:
 | awsAccessKeyId         | Your AWS Access Key credential                     | No. If not specified, the task will defer to the default credential chain. |
 | awsSecretKey           | Your AWS Secret Key credential                     | No. If not specified, the task will defer to the default credential chain. |
 | environmentName        | The name of your AWS Elastic Beanstalk Environment | Yes                                                                        |
+
+ AWS OpsWorks Task usage guide
+======================================
+
+Create Stack Task
+-----------------
+
+Creates a stack in OpsWorks, and sets the "stackID" property to the resulting stack so that you can reference it later in the project as `${stackId}` (Though you can override the property to set)
+
+Parameters:
+
+| Attribute                 | Description                                                                                                                                                 | Required?                                                                                                                          |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId            | Your AWS Access Key credential                                                                                                                              | No. If not specified, the task will defer to the default credential chain.                                                         |
+| awsSecretKey              | Your AWS Secret Key credential                                                                                                                              | No. If not specified, the task will defer to the default credential chain.                                                         |
+| name                      | The name of this stack                                                                                                                                      | Yes.                                                                                                                               |
+| region                    | The region of this stack.                                                                                                                                   | Yes.                                                                                                                               |
+| serviceRoleArn            | The IAM role which will allow OpsWorks to access AWS resources on your behalf. Must be a valid role with proper access permissions that you have access to. | Yes.                                                                                                                               |
+| defaultInstanceProfileArn | The IAM role to be the default profile for all of this stack's EC2 instances. Must be a valid instance profile that you have access to.                     | Yes.                                                                                                                               |
+| repoType                  | The type of the repository your cookbook is stored in.                                                                                                      | If repoUrl is set, this must be set. If useCustomCookbooks is false, this cannot be set.                                           |
+| repoUrl                   | The URL leading to the source of your cookbook.                                                                                                             | If repoType is set, this must be set. If useCustomCookbooks is false, this cannot be set.                                          |
+| repoUsername              | The username needed to access your cookbook repository.                                                                                                     | If repoPassword is set, this must be set. If useCustomCookbooks is false, this cannot be set.                                      |
+| repoPassword              | The password needed to access your cookbook repository.                                                                                                     | If repoUsername is set, this must be set. If useCustomCookbooks is false, this cannot be set.                                      |
+| repoSshKey                | The SSH key for your cookbook repository.                                                                                                                   | Only if you need an SSH key to access the repository you are trying to access. If useCustomCookbooks is false, this cannot be set. |
+| repoRevision              | The revision of the source for your cookbook repository to use.                                                                                             | No. If useCustomCookbooks is false, this cannot be set.                                                                            |
+| vpcId                     | The ID of the VPC the stack will be launched into                                                                                                           | No.                                                                                                                                |
+| defaultAvailabilityZone   | The stack's default availability zone.                                                                                                                      | No.                                                                                                                                |
+| defaultOs                 | The stack's default operating system. This must be set to Amazon Linux or Ubuntu 12.04 LTS.                                                                 | No.                                                                                                                                |
+| defaultRootDeviceType     | The default root device type of this stack.                                                                                                                 | No.                                                                                                                                |
+| hostnameTheme             | This stack's host name theme.                                                                                                                               | No.                                                                                                                                |
+| customJson                | A string of custom JSON to use to override the default corresponding stack configuration values. Must be correctly formed and properly escaped.             | No.                                                                                                                                |
+| berkshelfVersion          | The version of Berkshelf to use.                                                                                                                            | No.                                                                                                                                |
+| startOnCreate             | Whether to start this stack when it is created.                                                                                                             | No. Has a default of "true"                                                                                                        |
+| useOpsworksSecurityGroups | Whether to associate the OpsWorks built-in security groups with this stack's layers.                                                                        | No. Has a default of "true"                                                                                                        |
+| useCustomCookbooks        | Whether this stack will use custom cookbooks.                                                                                                               | No. Has a default of "false"                                                                                                       |
+| manageBerkshelf           | Whether to enable Berkshelf.                                                                                                                                | No. Has a default of "false"                                                                                                       |
+| chefVersion               | The version of Chef to use.                                                                                                                                 | No. Has a default of 11.4                                                                                                          |
+| propertyNameForStackId    | The name of the property to set this stack's ID to.                                                                                                         | No. Has a default of "stackId"                                                                                                     |
+
+Nested elements:
+Nested StackAttributes. StackAttributes are simply key-value pairs to associate with a stack. StackAttributes are used simply as <StackAttribute key="..." value="..." /> (Both fields are required)
+No nested elements are required.
+
+Example code:
+
+```
+<create-opsworks-stack name="MyStack" region="us-east-1" defaultInstanceProfileArn="aws-opsworks-ec2-role" serviceRoleArn="aws-opsworks-service-role" />
+<echo message="New stack (id=${stackId}) is created." />
+```
+Result: Creates an OpsWorks stack named "MyStack," starts the stack,  then sets the "stackId" property to the ID of the created stack.
+
+Example code using more parameters and nested elements:
+
+```
+<create-opsworks-stack name="MyStack" region="us-east-1" defaultInstanceProfileArn="aws-opsworks-ec2-role" serviceRoleArn="aws-opsworks-service-role"
+    defaultOs="Amazon Linux" defaultAvailabilityZone="us-east-1b" defaultRootDeviceType="Instance store" propertyForStackId="myStackId">
+        <StackAttribute key="examplekey" value="examplevalue" />
+</create-opsworks-stack>
+<echo message="New stack (id=${myStackId}) is created." />
+```
+Result: Creates an OpsWorks stack named "MyStack" according to the set parameters, starts the stack, then sets the "myStackId" property to the ID of the created stack.
+
+Create Layer Task
+-----------------
+
+Creates a layer in OpsWorks according to the parameters you set.
+
+Parameters:
+
+| Attribute                | Description                                                                                                         | Required?                                                                                                                                   |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId           | Your AWS Access Key credential                                                                                      | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| awsSecretKey             | Your AWS Secret Key credential                                                                                      | No. If not specified, the task will defer to the default credential chain.                                                                  |                                 
+| stackId                  | The ID of the stack this layer will reside in.                                                                      | If not specified, the task will use the value of the "stackId" property. It is required that either that property or this attribute be set. |
+| type                     | The type of this layer.                                                                                             | Yes.                                                                                                                                        |
+| name                     | The name of this layer.                                                                                             | Yes.                                                                                                                                        |
+| shortname                | The shortname of this layer.                                                                                        | Yes.                                                                                                                                        |
+| customInstanceProfileArn | The ARN of an IAM profile to use for this layer's EC2 instances.                                                    | No.                                                                                                                                         |
+| enableAutoHealing        | Whether to enable auto healing for this layer.                                                                      | No. Has a default of "true"                                                                                                                 |
+| autoAssignPublicIps      | Whether to automatically assign a public IP address to the layer's instances, for stacks that are running in a VPC. | No. Has a default of "true"                                                                                                                 |
+| installUpdatesOnBoot     | Whether to install operating system and package updates on boot.                                                    | No. Has a default of "true". It is hightly recommended you leave this as "True"                                                             |
+| useEbsOptimizedInstances | Whether to use Amazon EBS-Optimized instances.                                                                      | No. Has a default of "true"                                                                                                                 |
+| autoAssignElasticIps     | Whether to automatically assign an elastic IP address to this layer's instances                                     | No. Has a default of "false"                                                                                                                |
+| propertyNameForLayerId   | The property name to assign this layer's ID to.                                                                     | No, but recommended if you want to refer to this layer later in the build.                                                                  |
+
+Nested elements:
+
+Nested LayerAttributes. LayerAttributes are simply key-value pairs to associate with a layer. LayerAttributes are used simply as <LayerAttribute key="..." value="..." /> (Both fields are required)
+
+Nested CustomSecurityGroupIds. They have only one field, "value," which should be the customSecurityGroupId you want to use for this layer. Used as <CustomSecurityGroupId value="..." />
+
+Nested LayerPackages. They have only one field, "value," which should be used to define the package. Used as <LayerPackage value="..." />
+
+Nested LayerRecipes. They have two fields, "name," the name of the recipe, and "phase," the phase in which to execute the recipe. Used as <LayerRecipe name="..." phase="..." />
+
+Nested LayerVolumeConfigurations. LayerVolumeConfigurations have the following parameters:
+
+| Attribute     | Description                            |
+|---------------|----------------------------------------|
+| iops          | The IOPS per disk (For PIOPS volumes). |
+| numberOfDisks | The number of disks in this volume.    |
+| raidLevel     | The volume RAID level (Integer).       |
+| size          | The size of this volume (Integer).     |
+| volumeType    | The volume type.                       |
+| mountPoint    | The volume mount point.                |
+
+Used as <LayerVolumeConfiguration iops="..." numberOfDisks="..." raidLevel="..." size="..." volumeType="..." mountPoint="..." />
+
+No nested elements are required.
+
+Example code:
+
+```
+<create-opsworks-layer name="MyOpsWorksLayer" type="java-app" shortname="opsworkslayer" propertyNameForLayerId="layerId" stackId=${previously-specified-stack-id} />
+```
+
+Create Instance Task
+--------------------
+
+Creates an EC2 Instance according to the parameters you set.
+
+Parameters:
+
+| Attribute            | Description                                                                                                      | Required?                                                                                                                                   |
+|----------------------|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId       | Your AWS Access Key credential                                                                                   | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| awsSecretKey         | Your AWS Secret Key credential                                                                                   | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| stackId              | The ID of the stack to associate this instance with.                                                             | If not specified, the task will use the value of the "stackId" property. It is required that either that property or this attribute be set. |
+| instanceType         | The type of this instance, such as m1.small, t2.medium, etc.                                                     | No.                                                                                                                                         |
+| availabilityZone     | The availability zone of this instance                                                                           | No.                                                                                                                                         |
+| virtualizationType   | The instances virtualization type. Should be paravirtual or hvm                                                  | No.                                                                                                                                         |
+| subnetId             | The ID of this instance's subnet.                                                                                | No.                                                                                                                                         |
+| autoScalingType      | The type of autoscaling to use for this instance.                                                                | No.                                                                                                                                         |
+| amiId                | A custom AMI ID to be used to create this instance                                                               | No. Should be set if you set "os" to "Custom"                                                                                               |
+| sshKeyName           | The IAM SSH key name used to SSH into this instance.                                                             | No, but needed if you want to SSH into this instance                                                                                        |
+| os                   | The operating system to use for this instance.                                                                   | No. Has a default of "Amazon Linux"                                                                                                         |
+| architecture         | The architecture of this instance.                                                                               | No. Has a default of "x86_64".                                                                                                              |
+| rootDeviceType       | The root device type of this instance                                                                            | No. Has a default of "Ebs"                                                                                                                  |
+| installUpdatesOnBoot | Whether to install OS and package updates when this instance                                                     | No. Has a default of "true," and it is highly recommended that you leave it as "True".                                                      |
+| ebsOptimized         | Whether to create an Amazon EBS-Optimized instance.                                                              | No. Has a default of "false"                                                                                                                |
+| useProjectLayerIds   | Whether to add all the IDs of all layers created earlier in this project to the layerIds group of this instance. | No. Has a default of "true"                                                                                                                 |
+| startOnCreate        | Whether to start this instance at the end of the execution of this task.                                         | No. Has a default of "true"                                                                                                                 |
+
+Nested elements:
+
+Nested LayerIds. LayerIds only have one field, "value," used to specify the ID of a layer to associate this instance with. You can specify as many as you want, but you must specify at least one. Used as <LayerId value="..." />
+If you create a Layer earlier in the build, and "useProjectLayerIds" is set to true, you don't have to specify layerIds because it will use the layers created earlier in the build.
+
+Example code:
+
+```
+<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId" stackId="${previously-specified-stack-id} >
+    <LayerId value=${previously-defined-layer-id} />
+</create-opsworks-instance>
+```
+Result: Creates an OpsWorks instance associated with the given layerId, and sets the "instanceId" property to the ID of the resulting instance.
+
+
+Create App Task
+---------------
+
+Creates an OpsWorks application according to the paramters you set, using the app source you specify.
+
+Parameters: 
+
+| Attribute            | Description                                                                       | Required?                                                                                                                                   |
+|----------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId       | Your AWS Access Key credential                                                    | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| awsSecretKey         | Your AWS Secret Key credential                                                    | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| stackId              | The ID of the stack for this app to reside in.                                    | If not specified, the task will use the value of the "stackId" property. It is required that either that property or this attribute be set. |
+| name                 | The name of this app.                                                             | Yes.                                                                                                                                        |
+| type                 | Set the type of this app.                                                         | Yes.                                                                                                                                        |
+| shortname            | The shortname of this app. Must be in all lowercase.                              | No.                                                                                                                                         |
+| description          | A description for this app. Not required.                                         | No.                                                                                                                                         |
+| repoSshKey           | The SSH key for your app repository.                                              | If you need a key to access your repository.                                                                                                |
+| repoType             | The type of the repository your app is stored in.                                 | No. If repoUrl is set, this must be set.                                                                                                    |
+| repoUrl              | The URL leading to the source of your app.                                        | No. If repoType is set, this must be set.                                                                                                   |
+| repoUsername         | The username to use to access your repository.                                    | No. If repoPassword is set, this must be set.                                                                                               |
+| repoPassword         | The password to access your repository.                                           | No. If repoUsername is set, this must be set.                                                                                               |
+| repoRevision         | The revision of the source to use.                                                | No.                                                                                                                                         |
+| sslCertificate       | The SSL certificate for the SSL configuration of this app.                        | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| sslPrivateKey        | The private key for the SSL configuration of this app.                            | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| sslChain             | The chain for the SSL configuration of this app.                                  | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| propertyNameForAppId | The name of the property to set this app's ID.                                    | No. Has a default of "appId".                                                                                                               |
+| enableSsl            | Whether to enable SSL for this app.                                               | No. Has a default of "true".                                                                                                                |
+| useAwsKeysForRepo    | Whether to use the default credential chain to set repoUsername and repoPassword. | No. Has a default of "false".                                                                                                               |
+
+Nested elements:
+
+Nested AppAttributes. AppAttributes are simply key-value pairs to associate with an app. AppAttributes are used simply as <AppAttribute key="..." value="..." /> (Both fields are required)
+
+Nested Domains. Domains only have on element, "value," which is used to specify a custom domain. Used as <Domain value="..." />
+
+Nested DataSources. DataSources have three elements: "type," "arn," and "databaseName," used to specify the type of data source, the arn of the data source, and the name of a database to use. Used as <DataSource type="..." arn="..." databaseName="..." />
+
+No nested elements are required.
+
+Example code: 
+
+```
+<create-opsworks-app name="MyApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/mypublicbucket/mypublicjavaapp.war" stackId=${previously-defined-stack-id}/>
+<echo message="New app (id=${appId}) is created." />
+```
+
+Creates an OpsWorks app called "MyApp" in OpsWorks, using a public app repository, then sets the "appId" property to the resulting app's ID.
+
+Another example:
+
+```
+<create-opsworks-app name="MyApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/myprivatebucket/myprivatejavaapp.war" useAwsKeysForRepo="true" propertyNameForAppId="myAppId" stackId=${previously-defined-stack-id}/>
+<echo message="New app (id=${myAppId}) is created." />
+```
+
+Creates an OpsWorks app called "myApp" in OpsWorks using the default credential chain to find credentials to access you private repository, then sets the "myAppId" property to the ID of the resulting app.
+
+
+Deploy App Task
+---------------
+
+Deploys an OpsWorks app to a set of EC2 instances.
+
+| Attribute                   | Description                                                                     | Required?                                                                                                                                   |
+|-----------------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId              | Your AWS Access Key credential                                                  | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| awsSecretKey                | Your AWS Secret Key credential                                                  | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| stackId                     | The ID of the stack for this app to reside in.                                  | If not specified, the task will use the value of the "stackId" property. It is required that either that property or this attribute be set. |
+| appId                       | The ID of the app to deploy.                                                    | If not specified, the task will use the value of the "appId" property. It is required that either that property or this attribute be set.   |
+| comment                     | A user-defined comment.                                                         | No.                                                                                                                                         |
+| customJson                  | User-defined, custom JSON used to override stack configuration JSON attributes. | No. If specified, must be well-formed and properly escaped JSON.                                                                            |
+| propertyNameForDeploymentId | The name of the property to set this deployment's ID.                           | No.                                                                                                                                         |
+
+Nested elements:
+
+Nested InstanceIds. InstanceIDs have one field, "value," used to specify the ID of an instance to deploy the app to. Used as <InstanceID value="..." />
+
+Nested Commands. Commands have one element, "name," the name of the command, as well as any number of nested Args. Args themselves have one element, "name," the name of the arg, as well as any number of nested ArgVals. ArgVals have one field, "value," used to specify the argument value.
+Commands are used as <Command name="..." /> or as
+
+```
+<Command name="...">
+    <Arg name="...>
+        <ArgVal value="..."/>
+        <ArgVal value="..."/>
+    </Arg>
+</Command>
+```
+You must specify exactly one Command.
+
+Example code: 
+
+```
+<deploy-opsworks-app propertyNameForDeploymentId="deploymentId1" comment="deploying v1 of MyApp" stackId="${previously-specified-stack-id" instanceId="${previously-specified-instance-id} >
+    <Command name="deploy" />
+    <InstanceId value="${previously-specified-instance-id}"/>
+</deploy-opsworks-app>
+```
+
+Update App Task
+---------------
+
+Updates an OpsWorks app according to the specified parameters. 
+
+Parameters: 
+
+| Attribute            | Description                                                                       | Required?                                                                                                                                   |
+|----------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId       | Your AWS Access Key credential                                                    | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| awsSecretKey         | Your AWS Secret Key credential                                                    | No. If not specified, the task will defer to the default credential chain.                                                                  |
+| appId                | The ID of the app to update.                                                      | If not specified, the task will use the value of the "appId" property. It is required that either that property or this attribute be set.   |
+| name                 | The name of this app.                                                             | Yes.                                                                                                                                        |
+| type                 | Set the type of this app.                                                         | Yes.                                                                                                                                        |
+| description          | A description for this app. Not required.                                         | No.                                                                                                                                         |
+| repoSshKey           | The SSH key for your app repository.                                              | If you need a key to access your repository.                                                                                                |
+| repoType             | The type of the repository your app is stored in.                                 | No. If repoUrl is set, this must be set.                                                                                                    |
+| repoUrl              | The URL leading to the source of your app.                                        | No. If repoType is set, this must be set.                                                                                                   |
+| repoUsername         | The username to use to access your repository.                                    | No. If repoPassword is set, this must be set.                                                                                               |
+| repoPassword         | The password to access your repository.                                           | No. If repoUsername is set, this must be set.                                                                                               |
+| repoRevision         | The revision of the source to use.                                                | No.                                                                                                                                         |
+| sslCertificate       | The SSL certificate for the SSL configuration of this app.                        | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| sslPrivateKey        | The private key for the SSL configuration of this app.                            | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| sslChain             | The chain for the SSL configuration of this app.                                  | No. If enableSsl is "false," this cannot be set.                                                                                            |
+| enableSsl            | Whether to enable SSL for this app.                                               | No. Has a default of "true".                                                                                                                |
+| useAwsKeysForRepo    | Whether to use the default credential chain to set repoUsername and repoPassword. | No. Has a default of "false".                                                                                                               |
+
+Nested elements:
+
+Nested Domains. Domains only have on element, "value," which is used to specify a custom domain. Used as <Domain value="..." />
+
+Nested DataSources. DataSources have three elements: "type," "arn," and "databaseName," used to specify the type of data source, the arn of the data source, and the name of a database to use. Used as <DataSource type="..." arn="..." databaseName="..." />
+
+No nested elements are required.
+
+Example code: 
+
+```
+<udpate-opsworks-app name="NewAppName" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/mypublicbucket/mypublicjavaapp.war" appId=${previously-defined-app-id} />
+```
+
+Incremental Deployment Task
+---------------------------
+
+To use this task, you specify deployment groups, which have any number of nested <deploy-opsworks-app> elements. All <deploy-opsworks-app> tasks in the same <DeploymentGroup> will run in parallel, but the task will not proceed to the next deployment group until all deployments in the group succeed.
+The only elements in this task are nexted DeploymentGroups (Used as <DeploymentGroup><!--deployments here--></DeploymentGroup>) which themselves have nested <deploy-opsworks-app> tasks.
+
+Example code:
+
+```
+<incremental-opsworks-deployment>
+    <DeploymentGroup>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
+            <Command name="deploy" />
+            <InstanceId value="${previously-defined-instanceId1}"/>
+        </deploy-opsworks-app>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId2">
+            <Command name="deploy" />
+            <InstanceId value="${previously-defined-instanceId2}"/>
+        </deploy-opsworks-app>
+    </DeploymentGroup>
+    <DeploymentGroup>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId3">
+            <Command name="deploy" />
+            <InstanceId value="${previously-defined-instanceId3}"/>
+        </deploy-opsworks-app>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId4">
+            <Command name="deploy" />
+            <InstanceId value="${previously-defined-instanceId4}"/>
+        </deploy-opsworks-app>
+    </DeploymentGroup>
+    <DeploymentGroup>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId5">
+            <Command name="deploy" />
+            <InstanceId value="${previously-defined-instanceId5}"/>
+        </deploy-opsworks-app>
+    </DeploymentGroup>
+</incremental-opsworks-deployment>
+```
+
+Result: deploys deploymentId1 and deploymentId2, blocks until they finish, then deploys deploymentId3 and deployment Id4, blocks until they finish, finally deploys deploymentId5 and block until it finishes.
