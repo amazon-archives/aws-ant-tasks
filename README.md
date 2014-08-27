@@ -1,6 +1,27 @@
 AWS Java Ant Tasks
 ==================
 
+Table of Contents
+-----------------
+* [General Usage](https://github.com/awslabs/aws-ant-tasks#usage-information)
+* [Amazon S3 Tasks](https://github.com/awslabs/aws-ant-tasks#s3-task-usage-guide)
+    * [Create bucket task](https://github.com/awslabs/aws-ant-tasks#create-bucket-task)
+    * [Upload to bucket task](https://github.com/awslabs/aws-ant-tasks#upload-to-bucket-task)
+    * [Download from bucket task](https://github.com/awslabs/aws-ant-tasks#download-from-bucket-task)
+* [AWS Elastic Beanstalk Tasks](https://github.com/awslabs/aws-ant-tasks#-aws-elastic-beanstalk-task-usage-guide)
+    * [Create Application Task](https://github.com/awslabs/aws-ant-tasks#create-application-task)
+    * [Create Environment Task](https://github.com/awslabs/aws-ant-tasks#create-environment-task)
+    * [Deploy Application Task](https://github.com/awslabs/aws-ant-tasks#deploy-application-task)
+    * [Terminate Environment Task](https://github.com/awslabs/aws-ant-tasks#terminate-environment-task)
+* [AWS OpsWorks tasks](https://github.com/awslabs/aws-ant-tasks#-aws-opsworks-task-usage-guide)
+    * [Create Stack Task](https://github.com/awslabs/aws-ant-tasks#create-stack-task)
+    * [Create Layer Task](https://github.com/awslabs/aws-ant-tasks#create-layer-task)
+    * [Create Instance Task](https://github.com/awslabs/aws-ant-tasks#create-instance-task)
+    * [Create App Task](https://github.com/awslabs/aws-ant-tasks#create-app-task)
+    * [Deploy App Task](https://github.com/awslabs/aws-ant-tasks#deploy-app-task)
+    * [Update App Task](https://github.com/awslabs/aws-ant-tasks#update-app-task)
+    * [Incremental Deployment Task](https://github.com/awslabs/aws-ant-tasks#incremental-deployment-task)
+    
 Usage Information
 -----------------
 
@@ -141,8 +162,8 @@ Example code:
 <create-beanstalk-app applicationName="mybeanstalkapp" applicationDescription="myapplication" /> 
 ```
 
- Create Environment task
- -----------------------
+Create Environment task
+-----------------------
  
 Creates an environment for your Application to run in. This task just creates the sample environment--to run your own application you will have to update this environment with the Deploy task. 
 Parameters:
@@ -565,4 +586,4 @@ Example code:
 </incremental-opsworks-deployment>
 ```
 
-Result: deploys deploymentId1 and deploymentId2, blocks until they finish, then deploys deploymentId3 and deployment Id4, blocks until they finish, finally deploys deploymentId5 and block until it finishes.
+Result: deploys deploymentId1 and deploymentId2, blocks until they finish, then deploys deploymentId3 and deployment Id4, blocks until they finish, finally deploys deploymentId5 and blocks until it finishes.
