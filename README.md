@@ -587,3 +587,156 @@ Example code:
 ```
 
 Result: deploys deploymentId1 and deploymentId2, blocks until they finish, then deploys deploymentId3 and deployment Id4, blocks until they finish, finally deploys deploymentId5 and blocks until it finishes.
+
+AWS CloudFormation Tasks Usage Guide
+======================================
+
+Create stack task
+------------------
+
+This task creates a stack in CloudFormation using either a URL you specify, or a (well-formed, escaped) string specified right in the body of the task call.
+
+Parameters:
+
+| Attribute        | Description                                                                 | Required?                                                                                                                                |
+|------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId   | Your AWS Access Key credential                                              | No. If not specified, the task will defer to the default credential chain.                                                               |
+| awsSecretKey     | Your AWS Secret Key credential                                              | No. If not specified, the task will defer to the default credential chain.                                                               |
+| onFailure        | An action to execute on failure.                                            | No. If this element is set, disableRollback should not be set. If disableRollback is set, this should not be set.                        |
+| stackName        | What to name this stack.                                                    | Yes.                                                                                                                                     |
+| stackPolicyBody  | Well formed, properly escaped JSON specifying a stack policy.               | No. If this is set, stackPolicyURL cannot be set. If stackPolicyURL is set, this cannot be set.                                          |
+| stackPolicyUrl   | A valid URL pointing to a JSON object specifying a stack policy.            | No. If this is set, stackPolicyBody cannot be set. If stackPolicyBody is set, this cannot be set.                                        |
+| templateBody     | Well formed, properly escaped JSON specifying a stack policy.               | If this is set, templateURL cannot be set. If templateURL is set, this cannot be set. It is required that this or templateURL be set.    |
+| templateURL      | A valid URL pointing to a JSON object specifying a template.                | If this is set, templateBody cannot be set. If templateBody is set, this cannot be set. It is required that this or templateBody be set. |
+| disableRollback  | Whether to disable rollback if stack creation fails.                        | No. Has a default of "false". If this is set, onFailure cannot be set.                                                                   |
+| waitForCreation  | Whether to block the build until this stack successfully finishes creation. | No. Has a default of "false"                                                                                                             |
+| timeoutInMinutes |  The amount of time to allow the stack to take to create before failing.    | Yes, must be greater than 0.                                                                                                             |
+
+Nested elements:
+
+Nested StackCapabilities. A StackCapability has only one element, "value," which is used to specify a capability you want to add to a stack. Used as <StackCapability value="..." />
+
+Nested NotificationArns. A NotificationArn has only one element, "value," which is used to specify a NotificationArn you want to add to the stack. Used as <NotificationArn value="..." />
+
+Nested StackParameters. A StackParameter is a key-value pair, where "key" is the name of the stack parameter to set, and "value" is the parameter's value. 
+Instead of specifying "value," you can set "usePreviousValue" to "true", and the previous value will be used. Used as <StackParameter key="..." value="..." /> or <StackParameter key=".." usePreviousValue="true" />
+
+Nested StackTags. StackTags are simply key value pairs to associate with the stack. Used as <StackTag key="..." value="..." />
+
+No nested elements are required by the task, however the template you specified may require that you specify some StackParameters. 
+
+Example code:
+
+```
+<create-cloudformation-stack stackName="anttaskteststack" timeoutInMinutes="100"
+templateURL="https://s3-us-west-2.amazonaws.com/cloudformation-templates-us-west-2/WordPress_Multi_AZ.template">
+    <StackParameter key="KeyName" value="myKeyName" />
+</create-cloudformation-stack>
+```
+
+Result: Uses [this](https://s3-us-west-2.amazonaws.com/cloudformation-templates-us-west-2/WordPress_Multi_AZ.template) template to create "anttaskteststack", specifying that the build should fail if it takes more than 100 minutes. Uses "myKeyName" as the key pair for your EC2 instances.
+
+Update Stack Task
+-----------------
+
+Updates an existing CloudFormation stack according to the parameters you set. 
+
+Parameters: 
+
+| Attribute                   | Description                                                                                                                                               | Required?                                                                                                                                                                                                                                    |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId              | Your AWS Access Key credential                                                                                                                            | No. If not specified, the task will defer to the default credential chain.                                                                                                                                                                   |
+| awsSecretKey                | Your AWS Secret Key credential                                                                                                                            | No. If not specified, the task will defer to the default credential chain.                                                                                                                                                                   |
+| stackName                   | The name of the stack to update.                                                                                                                          | Yes.                                                                                                                                                                                                                                         |
+| stackPolicyBody             | Well formed, properly escaped JSON specifying a stack policy.                                                                                             | No. If this is set, stackPolicyURL cannot be set. If stackPolicyURL is set, this cannot be set.                                                                                                                                              |
+| stackPolicyUrl              | A valid URL pointing to a JSON object specifying a stack policy.                                                                                          | No. If this is set, stackPolicyBody cannot be set. If stackPolicyBody is set, this cannot be set.                                                                                                                                            |
+| templateBody                | Well formed, properly escaped JSON specifying a stack policy.                                                                                             | If this is set, templateURL cannot be set. If templateURL is set, this cannot be set. It is required that this or templateURL be set, or that usePreviousTemplate be set to true. If usePreviousTemplate is true, this should not be set.    |
+| templateURL                 | A valid URL pointing to a JSON object specifying a template.                                                                                              | If this is set, templateBody cannot be set. If templateBody is set, this cannot be set. It is required that this or templateBody be set, or that usePreviousTemplate be set to true. If usePreviousTemplate is true, this should not be set. |
+| stackPolicyDuringUpdateBody | Well formed, properly escaped JSON specifying a stack policy to use during this update only, overriding the current policy until the update completes.    | No. If this is set, stackPolicyDuringUpdateURL cannot be set. If stackPolicyDuringUpdateURL is set, this cannot be set.                                                                                                                      |
+| stackPolicyDuringUpdateURL  | A valid URL pointing to a JSON object specifying a stack policy to use during this update only, overriding the current policy until the update completes. | No. If this is set, stackPolicyDuringUpdateBody cannot be set. If stackPolicyDuringUpdateBody is set, this cannot be set.                                                                                                                    |
+| usePreviousTemplate         | Whether to use the previous template during this update.                                                                                                  | No. If this is set, templateURL and templateBody should not be set.                                                                                                                                                                          | 
+
+Nested elements: 
+
+Nested StackCapabilities. A StackCapability has only one element, "value," which is used to specify a capability you want to add to a stack. Used as <StackCapability value="..." />
+
+Nested NotificationArns. A NotificationArn has only one element, "value," which is used to specify a NotificationArn you want to add to the stack. Used as <NotificationArn value="..." />
+
+Nested StackParameters. A StackParameter is a key-value pair, where "key" is the name of the stack parameter to set, and "value" is the parameter's value. 
+Instead of specifying "value," you can set "usePreviousValue" to "true", and the previous value will be used. Used as <StackParameter key="..." value="..." /> or <StackParameter key=".." usePreviousValue="true" />
+
+No nested elements are required by the task, however the template you specified may require that you specify some StackParameters. 
+
+Example code:
+
+```
+<update-cloudformation-stack stackName="anttaskteststack" usePreviousTemplate="true">
+	<StackParameter key="KeyName" usePreviousValue="true" />
+	<StackParameter key="WebServerCapacity" value="3" />
+</update-cloudformation-stack>
+```
+
+Result: updates "anttaskteststack", using the same template as before and keeping the key name the same, but setting the web server capacity to 3. 
+
+Set Stack Policy Task
+---------------------
+
+Updates the stack policy of a specified stack.
+
+Parameters:
+
+| Attribute       | Description                                                      | Required?                                                                                                                                                   |
+|-----------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| awsAccessKeyId  | Your AWS Access Key credential                                   | No. If not specified, the task will defer to the default credential chain.                                                                                  |
+| awsSecretKey    | Your AWS Secret Key credential                                   | No. If not specified, the task will defer to the default credential chain.                                                                                  |                                 
+| stackName       | The name of the stack to apply the update to.                    | Yes.                                                                                                                                                        |
+| stackPolicyBody | Well formed, properly escaped JSON specifying a stack policy.    | If this is set, stackPolicyURL cannot be set. If stackPolicyURL is set, this cannot be set. It is required that either this or stackPolicyUrl be set.       |
+| stackPolicyURL  | A valid URL pointing to a JSON object specifying a stack policy. | If this is set, stackPolicyBody cannot be set. If stackPolicyBody is set, this cannot be set. It is required that either this or stackPolicyBody be set.    |
+
+Nested elements:
+
+None.
+Example code:
+
+```
+ <set-cloudformation-stack-policy stackName="anttaskteststack"
+            stackPolicyBody="{
+                   &quot;Statement&quot;: [{
+                    &quot;Effect&quot;: &quot;Deny&quot;,
+                    &quot;Action&quot;: &quot;Update:*&quot;,
+                    &quot;Principal&quot;: &quot;*&quot;,
+                    &quot;Resource&quot;: &quot;LogicalResourceId/DBInstance&quot;
+                }, {
+                    &quot;Effect&quot;: &quot;Allow&quot;,
+                    &quot;Action&quot;: &quot;Update:*&quot;,
+                    &quot;Principal&quot;: &quot;*&quot;,
+                    &quot;Resource&quot;: &quot;*&quot;
+                }]
+            }" />
+```
+
+Result: Updates "anttaskteststack" with the specified JSON object. This policy prevents any updates to the stack's DBInstance, but allows all other updates.
+
+Wait For Stack To Reach State Task
+----------------------------------
+
+Blocks the build until the specified stack reaches the specified state. Fails the build if the state contains "FAILED".
+
+Parameters:
+
+| Attribute       | Description                                 | Required?                                                                  |
+|-----------------|---------------------------------------------|----------------------------------------------------------------------------|
+| awsAccessKeyId  | Your AWS Access Key credential              | No. If not specified, the task will defer to the default credential chain. |
+| awsSecretKey    | Your AWS Secret Key credential              | No. If not specified, the task will defer to the default credential chain. |                                 
+| stackName       | The name of the stack to wait for.          | Yes.                                                                       |
+| status          | The status to wait for the stack to reach.  | Yes.                                                                       |
+
+Nested elements:
+None.
+
+Example code: 
+```
+<let-cloudformation-stack-reach-status stackName="anttaskteststack" status="UPDATE_COMPLETE" />
+```
+
+Waits for "anttaskteststack" to reach "UDPATE_COMPLETE". The build is blocked until it completes. 

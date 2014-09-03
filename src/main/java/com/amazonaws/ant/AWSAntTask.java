@@ -19,17 +19,16 @@ import java.lang.reflect.Constructor;
 import org.apache.tools.ant.Task;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 
 /**
  * Base class for AWS-related Ant tasks. Handles all shared logic.
- * 
- * @author jesduart
- * 
  */
 public abstract class AWSAntTask extends Task {
 
+    private static final String USER_AGENT_PREFIX = "AWS Ant Tasks/";
     protected String awsAccessKeyId;
     protected String awsSecretKey;
 
@@ -71,14 +70,18 @@ public abstract class AWSAntTask extends Task {
     public <T extends AmazonWebServiceClient> T createClient(
             Class<T> clientClass) {
         try {
+            ClientConfiguration clientConfiguration = new ClientConfiguration()
+                    .withUserAgent(USER_AGENT_PREFIX + this.getClass().getSimpleName());
             if (awsSecretKey != null && awsAccessKeyId != null) {
-                Constructor<T> constructor = clientClass
-                        .getConstructor(AWSCredentials.class);
+                Constructor<T> constructor = clientClass.getConstructor(
+                        AWSCredentials.class, ClientConfiguration.class);
                 return constructor.newInstance(new BasicAWSCredentials(
-                        awsAccessKeyId, awsSecretKey));
+                        awsAccessKeyId, awsSecretKey), clientConfiguration);
             }
-            Constructor<T> constructor = clientClass.getConstructor();
-            return constructor.newInstance();
+            Constructor<T> constructor = clientClass
+                    .getConstructor(ClientConfiguration.class);
+            return constructor
+                    .newInstance(clientConfiguration);
         } catch (Exception e) {
             throw new RuntimeException("Unable to create client: "
                     + e.getMessage(), e);

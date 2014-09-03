@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
+import com.amazonaws.ant.KeyValueNestedElement;
+import com.amazonaws.ant.SimpleNestedElement;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.opsworks.AWSOpsWorksClient;
@@ -471,82 +473,13 @@ public class CreateAppTask extends AWSAntTask {
     /**
      * Nested element for specifying any number of custom domains
      */
-    public static class Domain {
-        private String value;
-
-        /**
-         * Get the domain
-         * 
-         * @return The domain
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the domain to use
-         * 
-         * @param value
-         *            The domain to use
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public Domain() {
-            // required by Ant
-        }
+    public static class Domain extends SimpleNestedElement {
     }
 
     /**
      * Container class to use as a nested element. Allows you to specify any
      * number of attributes(key-value pairs) to associate with this app
      */
-    public static class AppAttribute {
-        private String key;
-        private String value;
-
-        /**
-         * Get the key of this attribute
-         * 
-         * @return The key of this attribute
-         */
-        public String getKey() {
-            return key;
-        }
-
-        /**
-         * Set the key of this attribute
-         * 
-         * @param key
-         *            The key of this attribute
-         */
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        /**
-         * Get the value of this attribute
-         * 
-         * @return The value of this attribute
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the value of this attribute
-         * 
-         * @param value
-         *            The value of this attribute
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public AppAttribute() {
-            // required by Ant
-        }
+    public static class AppAttribute extends KeyValueNestedElement{
     }
-
 }

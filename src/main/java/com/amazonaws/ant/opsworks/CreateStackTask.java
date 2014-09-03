@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
+import com.amazonaws.ant.KeyValueNestedElement;
 import com.amazonaws.services.opsworks.model.ChefConfiguration;
 import com.amazonaws.services.opsworks.model.CreateStackRequest;
 import com.amazonaws.services.opsworks.model.Source;
@@ -445,51 +446,7 @@ public class CreateStackTask extends AWSAntTask {
      * A class to be used as a nested element. Use to specify any number of
      * key-value pairs to associate with the stack.
      */
-    public static class StackAttribute {
-        private String key;
-        private String value;
-
-        /**
-         * Get the key of this attribute
-         * 
-         * @return The key of this attribute
-         */
-        public String getKey() {
-            return key;
-        }
-
-        /**
-         * Set the key of this attribute
-         * 
-         * @param key
-         *            The key of this attribute
-         */
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        /**
-         * Get the value of this attribute
-         * 
-         * @return The value of this attribute
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the value of this attribute
-         * 
-         * @param value
-         *            the value of this attribute
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public StackAttribute() {
-            // required by Ant
-        }
+    public static class StackAttribute extends KeyValueNestedElement {
     }
 
 }

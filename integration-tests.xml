@@ -1,116 +1,157 @@
 <project name="aws-java-sdk-ant-tasks" basedir="." default="test.all">
-	<path id="tests.classpath">
-		<pathelement location="target/" />
-		<pathelement path="target/aws-java-sdk-ant-tasks-${version}.jar" />
-		<pathelement path="target/aws-java-sdk-ant-tasks-${version}-tests.jar" />
-	</path>
-	<target name="awstasks.setup">
-		<taskdef resource="taskdefs.xml" classpath="target/aws-java-sdk-ant-tasks-${version}.jar" />
-		<taskdef resource="test-taskdefs.xml" classpathref="tests.classpath" />
-	</target>
+    <path id="tests.classpath">
+        <pathelement location="target/" />
+        <pathelement path="target/aws-java-sdk-ant-tasks-${version}.jar" />
+        <pathelement path="target/aws-java-sdk-ant-tasks-${version}-tests.jar" />
+    </path>
+    <target name="awstasks.setup">
+        <taskdef resource="taskdefs.xml" classpath="target/aws-java-sdk-ant-tasks-${version}.jar" />
+        <taskdef resource="test-taskdefs.xml" classpathref="tests.classpath" />
+    </target>
 
-	<target name="test.s3" depends="awstasks.setup">
-		<setup-s3 file="testfile.txt" />
-		<create-s3-bucket bucketName="uploadfilesettos3testbucket" />
-		<upload-to-s3 bucketName="uploadfilesettos3testbucket" keyPrefix="test/">
-			<fileset file="testfile.txt" />
-		</upload-to-s3>
-		<download-from-s3 bucketName="uploadfilesettos3testbucket" key="test/testfile.txt" file="downloadedfile.txt" />
-		<assert-file-equals firstFile="testfile.txt" secondFile="downloadedfile.txt" />
-		<cleanup-s3 firstFile="downloadedfile.txt" secondFile="testfile.txt" bucketName="uploadfilesettos3testbucket" />
-	</target>
+    <target name="test.s3" depends="awstasks.setup">
+        <setup-s3 file="testfile.txt" />
+        <create-s3-bucket bucketName="uploadfilesettos3testbucket" />
+        <upload-to-s3 bucketName="uploadfilesettos3testbucket" keyPrefix="test/">
+            <fileset file="testfile.txt" />
+        </upload-to-s3>
+        <download-from-s3 bucketName="uploadfilesettos3testbucket" key="test/testfile.txt" file="downloadedfile.txt" />
+        <assert-file-equals firstFile="testfile.txt" secondFile="downloadedfile.txt" />
+        <cleanup-s3 firstFile="downloadedfile.txt" secondFile="testfile.txt" bucketName="uploadfilesettos3testbucket" />
+    </target>
 
-	<target name="test.beanstalk" depends="awstasks.setup">
-		<create-s3-bucket bucketName="deploybeanstalkbucket" />
-		<setup-beanstalk instanceProfile="ElasticBeanstalkProfile" />
-		<create-beanstalk-app applicationName="anttestappname" applicationDescription="anttestappdesc" />
-		<create-beanstalk-env applicationName="anttestappname" cnamePrefix="testdeployapptobeanstalkenv" environmentName="testdeployappenv" environmentDescription="testdeployenvdesc" solutionStackName="64bit Amazon Linux running Tomcat 6">
-			<Setting namespace="aws:autoscaling:launchconfiguration" optionname="IamInstanceProfile" value="ElasticBeanstalkProfile" />
-		</create-beanstalk-env>
-		<test-beanstalk-deployment environmentName="testdeployappenv" />
-		<deploy-beanstalk-app bucketName="deploybeanstalkbucket" versionLabel="version1" versionDescription="testversiondesc" applicationName="anttestappname" environmentName="testdeployappenv" file="test.war" />
-		<test-beanstalk-deployment environmentName="testdeployappenv" />
-		<terminate-beanstalk-env environmentName="testdeployappenv" />
-		<delete-beanstalk-app applicationName="anttestappname" />
-		<cleanup-beanstalk instanceProfile="ElasticBeanstalkProfile" bucketName="deploybeanstalkbucket" />
-	</target>
-	
-	<target name="test.opsworks" depends="awstasks.setup">
-		<setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
-		<create-s3-bucket bucketName="antopsworkstestbucket"/>
-		<upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
-			<fileset file="test.war" />
-		</upload-to-s3>
-		<create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
-		<create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antstack" propertyNameForLayerId="layerId1"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
-		<let-opsworks-instance-reach-state instanceId="${instanceId}" state="online"/>
-		<create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
-		<deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
-			<Command name="deploy" />
-			<InstanceId value="${instanceId1}"/>
-		</deploy-opsworks-app>
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId1}" />
-		<teardown-opsworks-tests bucketName="antopsworkstestbucket" />
-	</target>
-	
-	<target name="test.opsworks.incremental" depends="awstasks.setup">
-		<setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
-		<create-s3-bucket bucketName="antopsworkstestbucket"/>
-		<upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
-			<fileset file="test.war" />
-		</upload-to-s3>
-		<create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
-		<create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antlayer" propertyNameForLayerId="layerId1"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId2"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId3"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId4"/>
-		<create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId5"/>
+    <target name="test.beanstalk" depends="awstasks.setup">
+        <create-s3-bucket bucketName="deploybeanstalkbucket" />
+        <setup-beanstalk instanceProfile="ElasticBeanstalkProfile" />
+        <create-beanstalk-app applicationName="anttestappname" applicationDescription="anttestappdesc" />
+        <create-beanstalk-env applicationName="anttestappname" cnamePrefix="testdeployapptobeanstalkenv" environmentName="testdeployappenv" environmentDescription="testdeployenvdesc" solutionStackName="64bit Amazon Linux running Tomcat 6">
+            <Setting namespace="aws:autoscaling:launchconfiguration" optionname="IamInstanceProfile" value="ElasticBeanstalkProfile" />
+        </create-beanstalk-env>
+        <test-beanstalk-deployment environmentName="testdeployappenv" />
+        <deploy-beanstalk-app bucketName="deploybeanstalkbucket" versionLabel="version1" versionDescription="testversiondesc" applicationName="anttestappname" environmentName="testdeployappenv" file="test.war" />
+        <test-beanstalk-deployment environmentName="testdeployappenv" />
+        <terminate-beanstalk-env environmentName="testdeployappenv" />
+        <delete-beanstalk-app applicationName="anttestappname" />
+        <cleanup-beanstalk instanceProfile="ElasticBeanstalkProfile" bucketName="deploybeanstalkbucket" />
+    </target>
+    
+    <target name="test.opsworks" depends="awstasks.setup">
+        <setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
+        <create-s3-bucket bucketName="antopsworkstestbucket"/>
+        <upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
+            <fileset file="test.war" />
+        </upload-to-s3>
+        <create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
+        <create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antstack" propertyNameForLayerId="layerId1"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId}" state="online"/>
+        <create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
+        <deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
+            <Command name="deploy" />
+            <InstanceId value="${instanceId1}"/>
+        </deploy-opsworks-app>
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId1}" />
+        <teardown-opsworks-tests bucketName="antopsworkstestbucket" />
+    </target>
+    
+    <target name="test.opsworks.incremental" depends="awstasks.setup">
+        <setup-opsworks-tests instanceProfile="aws-opsworks-ec2-role" serviceRole="aws-opsworks-service-role"/>
+        <create-s3-bucket bucketName="antopsworkstestbucket"/>
+        <upload-to-s3 bucketName="antopsworkstestbucket" keyPrefix="test/">
+            <fileset file="test.war" />
+        </upload-to-s3>
+        <create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
+        <create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antlayer" propertyNameForLayerId="layerId1"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId2"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId3"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId4"/>
+        <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId5"/>
 
-		<let-opsworks-instance-reach-state instanceId="${instanceId1}" state="online"/>
-		<let-opsworks-instance-reach-state instanceId="${instanceId2}" state="online"/>
-		<let-opsworks-instance-reach-state instanceId="${instanceId3}" state="online"/>
-		<let-opsworks-instance-reach-state instanceId="${instanceId4}" state="online"/>
-		<let-opsworks-instance-reach-state instanceId="${instanceId5}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId1}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId2}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId3}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId4}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId5}" state="online"/>
 
-		<create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
+        <create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
 
-		<incremental-opsworks-deployment>
-			<DeploymentGroup>
-				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
-					<Command name="deploy" />
-					<InstanceId value="${instanceId1}"/>
-				</deploy-opsworks-app>
-				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId2">
-					<Command name="deploy" />
-					<InstanceId value="${instanceId2}"/>
-				</deploy-opsworks-app>
-			</DeploymentGroup>
-			<DeploymentGroup>
-					<deploy-opsworks-app propertyNameForDeploymentId="deploymentId3">
-						<Command name="deploy" />
-						<InstanceId value="${instanceId3}"/>
-					</deploy-opsworks-app>
-					<deploy-opsworks-app propertyNameForDeploymentId="deploymentId4">
-							<Command name="deploy" />
-							<InstanceId value="${instanceId4}"/>
-					</deploy-opsworks-app>
-			</DeploymentGroup>
-			<DeploymentGroup>
-				<deploy-opsworks-app propertyNameForDeploymentId="deploymentId5">
-					<Command name="deploy" />
-					<InstanceId value="${instanceId5}"/>
-				</deploy-opsworks-app>
-			</DeploymentGroup>
-		</incremental-opsworks-deployment>
-		
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId1}"/>
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId2}"/>
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId3}"/>
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId4}"/>
-		<assert-successful-opsworks-deployment deploymentId="${deploymentId5}"/>
-		<teardown-opsworks-tests bucketName="antopsworkstestbucket" />
-	</target>
-	<target name="test.all" depends="test.s3,test.beanstalk, test.opsworks" />
+        <incremental-opsworks-deployment>
+            <DeploymentGroup>
+                <deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
+                    <Command name="deploy" />
+                    <InstanceId value="${instanceId1}"/>
+                </deploy-opsworks-app>
+                <deploy-opsworks-app propertyNameForDeploymentId="deploymentId2">
+                    <Command name="deploy" />
+                    <InstanceId value="${instanceId2}"/>
+                </deploy-opsworks-app>
+            </DeploymentGroup>
+            <DeploymentGroup>
+                    <deploy-opsworks-app propertyNameForDeploymentId="deploymentId3">
+                        <Command name="deploy" />
+                        <InstanceId value="${instanceId3}"/>
+                    </deploy-opsworks-app>
+                    <deploy-opsworks-app propertyNameForDeploymentId="deploymentId4">
+                            <Command name="deploy" />
+                            <InstanceId value="${instanceId4}"/>
+                    </deploy-opsworks-app>
+            </DeploymentGroup>
+            <DeploymentGroup>
+                <deploy-opsworks-app propertyNameForDeploymentId="deploymentId5">
+                    <Command name="deploy" />
+                    <InstanceId value="${instanceId5}"/>
+                </deploy-opsworks-app>
+            </DeploymentGroup>
+        </incremental-opsworks-deployment>
+        
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId1}"/>
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId2}"/>
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId3}"/>
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId4}"/>
+        <assert-successful-opsworks-deployment deploymentId="${deploymentId5}"/>
+        <teardown-opsworks-tests bucketName="antopsworkstestbucket" />
+    </target>
+    
+    <target name="test.cloudformation" depends="awstasks.setup">
+        <setup-cloudformation-tests />
+        
+        <create-cloudformation-stack stackName="anttaskteststack" timeoutInMinutes="100"
+        templateURL="https://s3-us-west-2.amazonaws.com/cloudformation-templates-us-west-2/WordPress_Multi_AZ.template">
+            <StackParameter key="KeyName" value="${generatedKeyName}" />
+        </create-cloudformation-stack>
+        <let-cloudformation-stack-reach-status stackName="anttaskteststack" status="CREATE_COMPLETE" />
+        
+        <set-cloudformation-stack-policy stackName="anttaskteststack"
+            stackPolicyBody="{
+                   &quot;Statement&quot;: [{
+                    &quot;Effect&quot;: &quot;Deny&quot;,
+                    &quot;Action&quot;: &quot;Update:*&quot;,
+                    &quot;Principal&quot;: &quot;*&quot;,
+                    &quot;Resource&quot;: &quot;LogicalResourceId/DBInstance&quot;
+                }, {
+                    &quot;Effect&quot;: &quot;Allow&quot;,
+                    &quot;Action&quot;: &quot;Update:*&quot;,
+                    &quot;Principal&quot;: &quot;*&quot;,
+                    &quot;Resource&quot;: &quot;*&quot;
+                }]
+            }" />
+        <update-cloudformation-stack stackName="anttaskteststack" usePreviousTemplate="true">
+            <StackParameter key="KeyName" value="${generatedKeyName}" />
+            <StackParameter key="DBName" value="DoNotSetThis" />
+        </update-cloudformation-stack>
+        
+        <!-- The update should be denied by the stack policy, so it should fail and roll back the stack. -->
+        <let-cloudformation-stack-reach-status stackName="anttaskteststack" status="UPDATE_ROLLBACK_COMPLETE" />
+        
+        <update-cloudformation-stack stackName="anttaskteststack" usePreviousTemplate="true">
+            <StackParameter key="KeyName" usePreviousValue="true" />
+            <StackParameter key="WebServerCapacity" value="3" />
+        </update-cloudformation-stack>
+        
+        <let-cloudformation-stack-reach-status stackName="anttaskteststack" status="UPDATE_COMPLETE" />
+        
+        <tear-down-cloudformation-tests keyName="${generatedKeyName}" stackName="anttaskteststack" />
+    </target>
+    <target name="test.all" depends="test.s3,test.beanstalk, test.opsworks" />
 </project>

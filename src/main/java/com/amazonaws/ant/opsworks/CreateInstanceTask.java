@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
+import com.amazonaws.ant.SimpleNestedElement;
 import com.amazonaws.services.opsworks.AWSOpsWorksClient;
 import com.amazonaws.services.opsworks.model.Architecture;
 import com.amazonaws.services.opsworks.model.AutoScalingType;
@@ -350,36 +351,7 @@ public class CreateInstanceTask extends AWSAntTask {
      * A container class to use as a nested element, so you can specify any
      * number of layerIds for this instance. You can find the IDs of layers to
      * use in the OpsWorks console.
-     * 
-     * @author jesduart
-     * 
      */
-    public static class LayerId {
-        private String value;
-
-        /**
-         * Get the layerId you set
-         * 
-         * @return The layerId
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the layerId
-         * 
-         * @param value
-         *            A layerId to use in an instance.
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public LayerId() {
-            // required by Ant
-        }
-
+    public static class LayerId extends SimpleNestedElement {
     }
-
 }

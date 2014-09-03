@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
+import com.amazonaws.ant.SimpleNestedElement;
 import com.amazonaws.services.opsworks.AWSOpsWorksClient;
 import com.amazonaws.services.opsworks.model.CreateDeploymentRequest;
 import com.amazonaws.services.opsworks.model.DeploymentCommand;
@@ -221,31 +222,7 @@ public class DeployAppTask extends AWSAntTask {
      * A class to be used as a nested element, specifying the IDs of EC2
      * instances to deploy the app to
      */
-    public static class InstanceId {
-        private String value;
-
-        /**
-         * Get the instance ID.
-         * 
-         * @return The instance ID.
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the ID of an EC2 instance to deploy the app to.
-         * 
-         * @param value
-         *            The ID of an EC2 instance to deploy the app to.
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public InstanceId() {
-            // required by Ant
-        }
+    public static class InstanceId extends SimpleNestedElement {
     }
 
     /**
@@ -354,31 +331,7 @@ public class DeployAppTask extends AWSAntTask {
      * A class to be used as a nested element by Arg. Used to specify
      * the value of an argument.
      */
-    public static class ArgVal {
-        private String value;
-    
-    /**
-      * Get a value of this argument.
-      * 
-      * @return A value of this argument.
-      */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-    * Set a value of this argument.
-    * 
-    * @param value
-    *            A value of this argument.
-    */
-    public void setValue(String value) {
-        this.value = value;
-     }
-
-     public ArgVal() {
-         // required by Ant
-     }
+    public static class ArgVal extends SimpleNestedElement{
      }
     }
     }

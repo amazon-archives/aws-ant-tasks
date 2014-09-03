@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
+import com.amazonaws.ant.KeyValueNestedElement;
+import com.amazonaws.ant.SimpleNestedElement;
 import com.amazonaws.services.opsworks.AWSOpsWorksClient;
 import com.amazonaws.services.opsworks.model.CreateLayerRequest;
 import com.amazonaws.services.opsworks.model.Recipes;
@@ -371,113 +373,21 @@ public class CreateLayerTask extends AWSAntTask {
      * A class to be used as a nested element. Use to make attributes (Key-value
      * pairs) to associate with this instance.
      */
-    public static class LayerAttribute {
-        private String key;
-        private String value;
-
-        /**
-         * Get the key of this attribute
-         * 
-         * @return The key of this attribute
-         */
-        public String getKey() {
-            return key;
-        }
-
-        /**
-         * Set the key of this attribute
-         * 
-         * @param key
-         *            The key of this attribute
-         */
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        /**
-         * Get the value of this attribute
-         * 
-         * @return The value of this attribute
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the value of this attribute
-         * 
-         * @param value
-         *            the value of this attribute
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public LayerAttribute() {
-            // required by Ant
-        }
+    public static class LayerAttribute extends KeyValueNestedElement {
     }
 
     /**
      * A class to be used as a nested element. Use to add any number of custom
      * security group IDs to use in this layer.
      */
-    public class CustomSecurityGroupId {
-        private String value;
-
-        /**
-         * Get the custom security group ID
-         * 
-         * @return The custom security group ID
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Set the custom security group ID
-         * 
-         * @param value
-         *            The custom security group ID
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public CustomSecurityGroupId() {
-            // required by Ant
-        }
+    public class CustomSecurityGroupId extends SimpleNestedElement {
     }
 
     /**
      * A class to use as a nested element. Use to create objects that describe
      * the layer packages.
      */
-    public static class LayerPackage {
-        private String value;
-
-        /**
-         * Get the layer package
-         * 
-         * @return The layer Package
-         */
-        public String getValue() {
-            return value;
-        }
-
-        /**
-         * Get the layer package
-         * 
-         * @param value
-         *            The layer Package
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public LayerPackage() {
-            // required by Ant
-        }
+    public static class LayerPackage extends SimpleNestedElement {
     }
 
     /**

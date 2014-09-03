@@ -13,8 +13,11 @@
     <taskdef name="cleanup-beanstalk"
         classname="com.amazonaws.ant.elasticbeanstalk.CleanUpBeanstalkTestsTask" />
         
-	<taskdef name="setup-opsworks-tests" classname="com.amazonaws.ant.opsworks.SetUpOpsWorksTestsTask" />
-	<taskdef name="assert-successful-opsworks-deployment" classname="com.amazonaws.ant.opsworks.AssertSuccessfulDeploymentTask" />
-	<taskdef name="let-opsworks-instance-reach-state" classname="com.amazonaws.ant.opsworks.WaitForInstanceToReachStateTask"/>
-	<taskdef name="teardown-opsworks-tests" classname="com.amazonaws.ant.opsworks.TearDownOpsWorksTestsTask"/>
+    <taskdef name="setup-opsworks-tests" classname="com.amazonaws.ant.opsworks.SetUpOpsWorksTestsTask" />
+    <taskdef name="assert-successful-opsworks-deployment" classname="com.amazonaws.ant.opsworks.AssertSuccessfulDeploymentTask" />
+    <taskdef name="let-opsworks-instance-reach-state" classname="com.amazonaws.ant.opsworks.WaitForInstanceToReachStateTask"/>
+    <taskdef name="teardown-opsworks-tests" classname="com.amazonaws.ant.opsworks.TearDownOpsWorksTestsTask"/>
+    
+    <taskdef name="setup-cloudformation-tests" classname="com.amazonaws.ant.cloudformation.SetUpCloudFormationTestsTask" />
+    <taskdef name="tear-down-cloudformation-tests" classname="com.amazonaws.ant.cloudformation.TearDownCloudFormationTestsTask" />
 </antlib>
