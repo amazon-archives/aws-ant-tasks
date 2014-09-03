@@ -21,6 +21,11 @@ Table of Contents
     * [Deploy App Task](https://github.com/awslabs/aws-ant-tasks#deploy-app-task)
     * [Update App Task](https://github.com/awslabs/aws-ant-tasks#update-app-task)
     * [Incremental Deployment Task](https://github.com/awslabs/aws-ant-tasks#incremental-deployment-task)
+* [AWS CloudFormation tasks](https://github.com/awslabs/aws-ant-tasks#aws-cloudformation-tasks-usage-guide)
+    * [Create Stack Task](https://github.com/awslabs/aws-ant-tasks#create-stack-task-1)
+    * [Update Stack Task](https://github.com/awslabs/aws-ant-tasks#update-stack-task)
+    * [Set Stack Policy Task](https://github.com/awslabs/aws-ant-tasks#set-stack-policy-task)
+    * [Wait For Stack To Reach State Task](https://github.com/awslabs/aws-ant-tasks#wait-for-stack-to-reach-state-task) 
     
 Usage Information
 -----------------
@@ -671,8 +676,8 @@ Example code:
 
 ```
 <update-cloudformation-stack stackName="anttaskteststack" usePreviousTemplate="true">
-	<StackParameter key="KeyName" usePreviousValue="true" />
-	<StackParameter key="WebServerCapacity" value="3" />
+    <StackParameter key="KeyName" usePreviousValue="true" />
+    <StackParameter key="WebServerCapacity" value="3" />
 </update-cloudformation-stack>
 ```
 
