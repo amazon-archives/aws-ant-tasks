@@ -49,7 +49,7 @@ public class IncrementalDeploymentTask extends AWSAntTask {
      * deployments to succeed, then deploys the next group until finished.
      */
     public void execute() {
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         for (DeploymentGroup deploymentGroup : deploymentGroups) {
             deploymentGroup.setClient(client);
             deploymentGroup.deployApps();

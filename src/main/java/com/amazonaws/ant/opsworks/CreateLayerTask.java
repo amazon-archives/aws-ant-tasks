@@ -315,7 +315,7 @@ public class CreateLayerTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         CreateLayerRequest createLayerRequest = new CreateLayerRequest()
                 .withStackId(stackId).withType(type).withName(name)
                 .withShortname(shortname)

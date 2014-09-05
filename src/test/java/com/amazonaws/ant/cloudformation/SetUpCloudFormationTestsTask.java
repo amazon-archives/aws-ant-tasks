@@ -47,7 +47,7 @@ public class SetUpCloudFormationTestsTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AmazonEC2Client client = createClient(AmazonEC2Client.class);
+        AmazonEC2Client client = getOrCreateClient(AmazonEC2Client.class);
         try {
             String keyName = Long.toString(System.currentTimeMillis());
             client.createKeyPair(new CreateKeyPairRequest()

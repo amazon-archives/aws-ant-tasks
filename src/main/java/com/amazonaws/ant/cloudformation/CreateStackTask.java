@@ -261,7 +261,7 @@ public class CreateStackTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AmazonCloudFormationClient client = createClient(AmazonCloudFormationClient.class);
+        AmazonCloudFormationClient client = getOrCreateClient(AmazonCloudFormationClient.class);
         CreateStackRequest createStackRequest = new CreateStackRequest()
                 .withDisableRollback(disableRollback).withOnFailure(onFailure)
                 .withStackName(stackName).withStackPolicyBody(stackPolicyBody)

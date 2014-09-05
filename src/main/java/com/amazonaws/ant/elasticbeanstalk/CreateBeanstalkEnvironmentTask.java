@@ -30,10 +30,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
 
 /**
- * Task for creating an elastic beanstalk environment
- * 
- * @author jesduart
- * 
+ * Task for creating an AWS Elastic Beanstalk environment
  */
 public class CreateBeanstalkEnvironmentTask extends AWSAntTask {
 
@@ -190,7 +187,7 @@ public class CreateBeanstalkEnvironmentTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSElasticBeanstalkClient client = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient client = getOrCreateClient(AWSElasticBeanstalkClient.class);
         CreateEnvironmentRequest eRequest = new CreateEnvironmentRequest(
                 applicationName, environmentName)
                 .withDescription(environmentDescription)
@@ -242,9 +239,6 @@ public class CreateBeanstalkEnvironmentTask extends AWSAntTask {
 
     /**
      * Wrapper for an environment option setting, to be used as a nested element
-     * 
-     * @author jesduart
-     * 
      */
     public static class Setting {
         private String namespace;

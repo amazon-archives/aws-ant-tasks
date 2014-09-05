@@ -38,7 +38,7 @@ public class SetUpBeanstalkTestsTask extends AWSAntTask {
     }
 
     public void execute() {
-        AmazonIdentityManagementClient iamClient = createClient(AmazonIdentityManagementClient.class);
+        AmazonIdentityManagementClient iamClient = getOrCreateClient(AmazonIdentityManagementClient.class);
         iamClient.createInstanceProfile(new CreateInstanceProfileRequest()
                 .withInstanceProfileName(instanceProfile));
         iamClient

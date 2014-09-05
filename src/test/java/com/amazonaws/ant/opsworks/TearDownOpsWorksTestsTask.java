@@ -45,8 +45,8 @@ public class TearDownOpsWorksTestsTask extends AWSAntTask {
     }
 
     public void execute() {
-        AmazonS3Client s3Client = createClient(AmazonS3Client.class);
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AmazonS3Client s3Client = getOrCreateClient(AmazonS3Client.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         AWSTestUtils.emptyAndDeleteBucket(s3Client, bucketName);
         client.deleteApp(new DeleteAppRequest().withAppId(getProject()
                 .getProperty("appId")));

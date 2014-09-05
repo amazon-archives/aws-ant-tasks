@@ -307,7 +307,7 @@ public class UpdateAppTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         UpdateAppRequest updateAppRequest = new UpdateAppRequest()
                 .withName(name).withType(type).withEnableSsl(enableSsl)
                 .withAppId(appId).withDescription(description)

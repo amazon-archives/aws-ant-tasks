@@ -81,7 +81,7 @@ public class SetStackPolicyTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AmazonCloudFormationClient client = createClient(AmazonCloudFormationClient.class);
+        AmazonCloudFormationClient client = getOrCreateClient(AmazonCloudFormationClient.class);
         SetStackPolicyRequest setStackPolicyRequest = new SetStackPolicyRequest()
                 .withStackName(stackName).withStackPolicyBody(stackPolicyBody)
                 .withStackPolicyURL(stackPolicyURL);

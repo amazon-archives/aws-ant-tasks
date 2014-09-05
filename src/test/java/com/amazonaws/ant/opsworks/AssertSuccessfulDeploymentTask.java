@@ -43,7 +43,7 @@ public class AssertSuccessfulDeploymentTask extends AWSAntTask {
     public void execute() {
         checkParams();
         if (!OpsWorksDeploymentTests.wasSuccessfulDeployment(
-                createClient(AWSOpsWorksClient.class), deploymentId)) {
+                getOrCreateClient(AWSOpsWorksClient.class), deploymentId)) {
             throw new BuildException("deployment " + deploymentId + " failed");
         }
     }

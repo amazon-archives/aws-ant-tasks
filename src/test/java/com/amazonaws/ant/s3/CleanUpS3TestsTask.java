@@ -63,7 +63,7 @@ public class CleanUpS3TestsTask extends AWSAntTask {
         if (file2 != null && file2.exists()) {
             file2.delete();
         }
-        AmazonS3Client client = createClient(AmazonS3Client.class);
+        AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
 
         AWSTestUtils.emptyAndDeleteBucket(client, bucketName);
     }

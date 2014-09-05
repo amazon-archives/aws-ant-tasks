@@ -21,7 +21,6 @@ import java.util.Iterator;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -124,7 +123,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
         }
     }
 
-    private void downloadObjectToFile(AmazonS3 client, File file, String key) {
+    private void downloadObjectToFile(AmazonS3Client client, File file, String key) {
         System.out.println("Downloading S3Object with key " + key
                 + " from bucket " + bucketName + " to file " + file + "...");
         try {
@@ -148,7 +147,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
     }
 
     public void execute() {
-        AmazonS3Client client = createClient(AmazonS3Client.class);
+        AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
         if (key != null) {
             File targetFile = file == null ? new File(key) : file;
             downloadObjectToFile(client, targetFile, key);

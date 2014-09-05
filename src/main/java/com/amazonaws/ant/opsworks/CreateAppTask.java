@@ -350,7 +350,7 @@ public class CreateAppTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         CreateAppRequest createAppRequest = new CreateAppRequest()
                 .withStackId(stackId).withName(name).withType(type)
                 .withEnableSsl(enableSsl).withShortname(shortname)

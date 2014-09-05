@@ -40,7 +40,7 @@ public class TestSuccessfulBeanstalkDeploymentTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSElasticBeanstalkClient bcClient = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient bcClient = getOrCreateClient(AWSElasticBeanstalkClient.class);
         DescribeEnvironmentsRequest deRequest = new DescribeEnvironmentsRequest()
                 .withEnvironmentNames(environmentName);
         DescribeEnvironmentsResult result = bcClient

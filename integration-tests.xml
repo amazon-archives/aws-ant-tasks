@@ -44,7 +44,7 @@
         <create-opsworks-stack name="AntTaskTestStack" region="us-east-1" defaultInstanceProfileArn="${instanceProfileArn}" serviceRoleArn="${serviceRoleArn}" />
         <create-opsworks-layer name="AntTaskTestLayer" type="java-app" shortname="antstack" propertyNameForLayerId="layerId1"/>
         <create-opsworks-instance instanceType="m1.small" availabilityZone="us-east-1b" propertyNameForInstanceId="instanceId1"/>
-        <let-opsworks-instance-reach-state instanceId="${instanceId}" state="online"/>
+        <let-opsworks-instance-reach-state instanceId="${instanceId1}" state="online"/>
         <create-opsworks-app name="AntTaskTestApp" type="java" repoType="s3" repoUrl="https://s3.amazonaws.com/antopsworkstestbucket/test/test.war" useAwsKeysForRepo="true"/>
         <deploy-opsworks-app propertyNameForDeploymentId="deploymentId1">
             <Command name="deploy" />
@@ -153,5 +153,5 @@
         
         <tear-down-cloudformation-tests keyName="${generatedKeyName}" stackName="anttaskteststack" />
     </target>
-    <target name="test.all" depends="test.s3,test.beanstalk, test.opsworks" />
+    <target name="test.all" depends="test.s3,test.beanstalk, test.opsworks, test.cloudformation" />
 </project>

@@ -379,7 +379,7 @@ public class CreateStackTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         CreateStackRequest createStackRequest = new CreateStackRequest()
                 .withName(name).withRegion(region)
                 .withServiceRoleArn(serviceRoleArn)

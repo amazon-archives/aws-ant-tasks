@@ -180,7 +180,7 @@ public class DeployAppTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         CreateDeploymentRequest createDeploymentRequest = new CreateDeploymentRequest()
                 .withStackId(stackId).withAppId(appId).withCommand(command)
                 .withInstanceIds(instanceIds);

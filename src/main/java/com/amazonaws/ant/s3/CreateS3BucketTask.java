@@ -48,7 +48,7 @@ public class CreateS3BucketTask extends AWSAntTask {
     }
 
     public void execute() {
-        AmazonS3Client client = createClient(AmazonS3Client.class);
+        AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
         try {
             System.out.println("Creating bucket with name " + bucketName
                     + "...");

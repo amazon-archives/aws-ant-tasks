@@ -296,7 +296,7 @@ public class CreateInstanceTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         CreateInstanceRequest createInstanceRequest = new CreateInstanceRequest()
                 .withStackId(stackId)
                 .withInstallUpdatesOnBoot(installUpdatesOnBoot)

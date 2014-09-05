@@ -224,7 +224,7 @@ public class UpdateStackTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AmazonCloudFormationClient client = createClient(AmazonCloudFormationClient.class);
+        AmazonCloudFormationClient client = getOrCreateClient(AmazonCloudFormationClient.class);
         UpdateStackRequest request = new UpdateStackRequest()
                 .withStackName(stackName).withStackPolicyBody(stackPolicyBody)
                 .withStackPolicyURL(stackPolicyURL)

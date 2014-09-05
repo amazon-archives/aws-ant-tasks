@@ -73,7 +73,7 @@ public class WaitForStackToReachStateTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AmazonCloudFormationClient client = createClient(AmazonCloudFormationClient.class);
+        AmazonCloudFormationClient client = getOrCreateClient(AmazonCloudFormationClient.class);
         if (!waitForCloudFormationStackToReachStatus(client, stackName, status)) {
             throw new BuildException("The stack update or creation failed");
         }

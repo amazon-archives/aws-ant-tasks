@@ -54,14 +54,14 @@ public class CleanUpBeanstalkTestsTask extends AWSAntTask {
     }
 
     public void execute() {
-        AmazonIdentityManagementClient iamClient = createClient(AmazonIdentityManagementClient.class);
+        AmazonIdentityManagementClient iamClient = getOrCreateClient(AmazonIdentityManagementClient.class);
         iamClient
                 .removeRoleFromInstanceProfile(new RemoveRoleFromInstanceProfileRequest()
                         .withRoleName(INSTANCEPROFILE_ROLE)
                         .withInstanceProfileName(instanceProfile));
         iamClient.deleteInstanceProfile(new DeleteInstanceProfileRequest()
                 .withInstanceProfileName(instanceProfile));
-        AmazonS3Client client = createClient(AmazonS3Client.class);
+        AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
 
         AWSTestUtils.emptyAndDeleteBucket(client, bucketName);
     }

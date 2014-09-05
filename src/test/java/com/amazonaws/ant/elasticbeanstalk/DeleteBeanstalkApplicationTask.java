@@ -37,7 +37,7 @@ public class DeleteBeanstalkApplicationTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSElasticBeanstalkClient bcClient = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient bcClient = getOrCreateClient(AWSElasticBeanstalkClient.class);
         bcClient.deleteApplication(new DeleteApplicationRequest(applicationName));
     }
 }

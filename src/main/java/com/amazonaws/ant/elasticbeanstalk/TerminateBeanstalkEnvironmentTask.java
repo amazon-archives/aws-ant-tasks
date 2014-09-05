@@ -21,10 +21,7 @@ import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
 
 /**
- * This task will terminate a beanstalk environment
- * 
- * @author jesduart
- * 
+ * This task will terminate an Elastic Beanstalk environment
  */
 public class TerminateBeanstalkEnvironmentTask extends AWSAntTask {
 
@@ -51,7 +48,7 @@ public class TerminateBeanstalkEnvironmentTask extends AWSAntTask {
         System.out
                 .println("Terminating environment " + environmentName + "...");
         checkParams();
-        AWSElasticBeanstalkClient bcClient = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient bcClient = getOrCreateClient(AWSElasticBeanstalkClient.class);
         try {
             bcClient.terminateEnvironment(new TerminateEnvironmentRequest()
                     .withEnvironmentName(environmentName));

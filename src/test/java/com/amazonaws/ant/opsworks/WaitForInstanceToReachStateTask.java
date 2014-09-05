@@ -64,7 +64,7 @@ public class WaitForInstanceToReachStateTask extends AWSAntTask {
     }
 
     public void execute() {
-        AWSOpsWorksClient client = createClient(AWSOpsWorksClient.class);
+        AWSOpsWorksClient client = getOrCreateClient(AWSOpsWorksClient.class);
         try {
             AWSTestUtils.waitForOpsworksInstanceToReachState(client,
                     instanceId, state);

@@ -71,7 +71,7 @@ public class SetUpOpsWorksTestsTask extends AWSAntTask {
      */
     public void execute() {
         checkParams();
-        AmazonIdentityManagementClient iamClient = createClient(AmazonIdentityManagementClient.class);
+        AmazonIdentityManagementClient iamClient = getOrCreateClient(AmazonIdentityManagementClient.class);
         getProject()
                 .setProperty(
                         "instanceProfileArn",

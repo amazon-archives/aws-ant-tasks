@@ -68,10 +68,10 @@ public class TearDownCloudFormationTestsTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AmazonEC2Client ec2Client = createClient(AmazonEC2Client.class);
+        AmazonEC2Client ec2Client = getOrCreateClient(AmazonEC2Client.class);
         ec2Client
                 .deleteKeyPair(new DeleteKeyPairRequest().withKeyName(keyName));
-        AmazonCloudFormationClient cloudFormationClient = createClient(AmazonCloudFormationClient.class);
+        AmazonCloudFormationClient cloudFormationClient = getOrCreateClient(AmazonCloudFormationClient.class);
         cloudFormationClient.deleteStack(new DeleteStackRequest()
                 .withStackName(stackName));
     }

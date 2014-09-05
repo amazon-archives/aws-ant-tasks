@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -22,24 +23,23 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 
 import com.amazonaws.ant.AWSAntTask;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 
 /**
- * ANT Task for deploying a fileset or filesets to S3.
- * 
- * @author jesduart
- * 
+ * Ant Task for uploading a fileset or filesets to S3.
  */
 public class UploadFileSetToS3Task extends AWSAntTask {
     private Vector<FileSet> filesets = new Vector<FileSet>();
     private String bucketName;
     private String keyPrefix;
+    private boolean printStatusUpdates = false;
     private boolean continueOnFail = false;
+    private int statusUpdatePeriodInMs = 500;
 
     /**
-     * Specify a fileset to be deployed
+     * Specify a fileset to be deployed. 
      * 
      * @param fileset
      *            A fileset, whose files will all be deployed to S3
@@ -86,6 +86,32 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     }
 
     /**
+     * Specify whether to print updates about your upload. The update will
+     * consist of how many bytes have been uploaded versus how many are to be
+     * uploaded in total. Not required, default is false.
+     * 
+     * @param printStatusUpdates
+     *            Whether you want the task to print status updates about your
+     *            upload.
+     */
+    public void setPrintStatusUpdates(boolean printStatusUpdates) {
+        this.printStatusUpdates = printStatusUpdates;
+    }
+    
+    /**
+     * Set how long to wait in between polls of your upload when printing
+     * status. Not required, default is 500. Setting will do nothing unless
+     * printStatusUpdates is true.
+     * 
+     * @param statusUpdatePeriodInMs
+     *            How long to wait in between polls of your upload when printing
+     *            status
+     */
+    public void setStatusUpdatePeriodInMs(int statusUpdatePeriodInMs) {
+        this.statusUpdatePeriodInMs = statusUpdatePeriodInMs;
+    }
+    
+    /**
      * Verifies that all necessary parameters were set
      */
     private void checkParameters() {
@@ -93,11 +119,11 @@ public class UploadFileSetToS3Task extends AWSAntTask {
         boolean areMalformedParams = false;
         if (bucketName == null) {
             areMalformedParams = true;
-            errors.append("Missing parameter: bucketname is required");
+            errors.append("Missing parameter: bucketName is required \n");
         }
         if (filesets.size() < 1) {
             areMalformedParams = true;
-            errors.append("Missing parameter: you must specify at least one fileset");
+            errors.append("Missing parameter: you must specify at least one fileset \n");
         }
         if (areMalformedParams) {
             throw new BuildException(errors.toString());
@@ -109,26 +135,43 @@ public class UploadFileSetToS3Task extends AWSAntTask {
      */
     public void execute() {
         checkParameters();
-        TransferManager tm;
+        TransferManager transferManager;
         if (awsSecretKey != null && awsAccessKeyId != null) {
-            tm = new TransferManager(new BasicAWSCredentials(awsAccessKeyId,
-                    awsSecretKey));
+            transferManager = new TransferManager(getOrCreateClient(AmazonS3Client.class));
         } else {
-            tm = new TransferManager();
+            transferManager = new TransferManager();
         }
-        for (FileSet fs : filesets) {
-            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
-            String[] includedFiles = ds.getIncludedFiles();
+        for (FileSet fileSet : filesets) {
+            DirectoryScanner directoryScanner = fileSet.getDirectoryScanner(getProject());
+            String[] includedFiles = directoryScanner.getIncludedFiles();
             try {
-                for (String s : includedFiles) {
-                    File base = ds.getBasedir();
-                    File file = new File(base, s);
+                for (String includedFile : includedFiles) {
+                    File base = directoryScanner.getBasedir();
+                    File file = new File(base, includedFile);
                     String key = keyPrefix + file.getName();
                     try {
                         System.out.println("Uploading file " + file.getName()
                                 + "...");
-                        Upload u = tm.upload(bucketName, key, file);
-                        u.waitForCompletion();
+                        Upload upload = transferManager.upload(bucketName, key, file);
+                        if (printStatusUpdates) {
+                            while (!upload.isDone()) {
+                                System.out.print(upload.getProgress()
+                                        .getBytesTransferred()
+                                        + "/"
+                                        + upload.getProgress()
+                                                .getTotalBytesToTransfer()
+                                        + " bytes transferred...\r");
+                                Thread.sleep(statusUpdatePeriodInMs);
+                            }
+                            System.out.print(upload.getProgress()
+                                        .getBytesTransferred()
+                                        + "/"
+                                        + upload.getProgress()
+                                                .getTotalBytesToTransfer()
+                                        + " bytes transferred...\n");
+                        } else {
+                            upload.waitForCompletion();
+                        }
                         System.out.println("Upload succesful");
                     } catch (Exception e) {
                         if (!continueOnFail) {
@@ -142,7 +185,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
                     }
                 }
             } finally {
-                tm.shutdownNow();
+                transferManager.shutdownNow();
             }
         }
     }

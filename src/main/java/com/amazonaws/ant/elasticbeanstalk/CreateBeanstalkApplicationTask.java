@@ -22,8 +22,6 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationRequest;
 
 /**
  * Ant Task for creating an Elastic Beanstalk application.
- * 
- * @author jesduart
  */
 public class CreateBeanstalkApplicationTask extends AWSAntTask {
     String applicationDescription;
@@ -67,7 +65,7 @@ public class CreateBeanstalkApplicationTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSElasticBeanstalkClient client = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient client = getOrCreateClient(AWSElasticBeanstalkClient.class);
         CreateApplicationRequest request = new CreateApplicationRequest(
                 applicationName).withDescription(applicationDescription);
         System.out.println("Creating application " + applicationName + "...");

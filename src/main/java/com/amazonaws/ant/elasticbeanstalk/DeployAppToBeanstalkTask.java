@@ -28,12 +28,9 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 
 /**
- * A task for deploying an application to beanstalk. To use this app, you must
- * have an existing application and environment in beanstalk. This task will
+ * A task for deploying an application to AWS Elastic Beanstalk. To use this app, you must
+ * have an existing application and environment in AWS Elastic Beanstalk. This task will
  * create a new version of your application and update the environment.
- * 
- * @author jesduart
- * 
  */
 public class DeployAppToBeanstalkTask extends AWSAntTask {
 
@@ -160,7 +157,7 @@ public class DeployAppToBeanstalkTask extends AWSAntTask {
 
     public void execute() {
         checkParams();
-        AWSElasticBeanstalkClient client = createClient(AWSElasticBeanstalkClient.class);
+        AWSElasticBeanstalkClient client = getOrCreateClient(AWSElasticBeanstalkClient.class);
 
         CreateApplicationVersionRequest vRequest = new CreateApplicationVersionRequest(
                 applicationName, versionLabel);
