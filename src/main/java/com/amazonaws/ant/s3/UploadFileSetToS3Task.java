@@ -39,8 +39,8 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     private int statusUpdatePeriodInMs = 500;
 
     /**
-     * Specify a fileset to be deployed. 
-     * 
+     * Specify a fileset to be deployed.
+     *
      * @param fileset
      *            A fileset, whose files will all be deployed to S3
      */
@@ -50,7 +50,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
 
     /**
      * Specify the name of your S3 bucket
-     * 
+     *
      * @param bucketName
      *            The name of the bucket in S3 to store the files in. An
      *            exception will be thrown if it doesn't exist.
@@ -61,7 +61,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
 
     /**
      * Specify the prefix to your files in this upload. This is optional
-     * 
+     *
      * @param keyPrefix
      *            If specified, all of your files in the fileset will have this
      *            prefixed to their key. For example, you can name this
@@ -75,7 +75,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     /**
      * Specify whether you want to continue uploading your fileset if the upload
      * of one file fails. False by default.
-     * 
+     *
      * @param continueOnFail
      *            If true, the task will continue to upload files from the
      *            fileset if any single files fails to upload. Otherwise, one
@@ -89,7 +89,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
      * Specify whether to print updates about your upload. The update will
      * consist of how many bytes have been uploaded versus how many are to be
      * uploaded in total. Not required, default is false.
-     * 
+     *
      * @param printStatusUpdates
      *            Whether you want the task to print status updates about your
      *            upload.
@@ -97,12 +97,12 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     public void setPrintStatusUpdates(boolean printStatusUpdates) {
         this.printStatusUpdates = printStatusUpdates;
     }
-    
+
     /**
      * Set how long to wait in between polls of your upload when printing
      * status. Not required, default is 500. Setting will do nothing unless
      * printStatusUpdates is true.
-     * 
+     *
      * @param statusUpdatePeriodInMs
      *            How long to wait in between polls of your upload when printing
      *            status
@@ -110,7 +110,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     public void setStatusUpdatePeriodInMs(int statusUpdatePeriodInMs) {
         this.statusUpdatePeriodInMs = statusUpdatePeriodInMs;
     }
-    
+
     /**
      * Verifies that all necessary parameters were set
      */
@@ -133,7 +133,8 @@ public class UploadFileSetToS3Task extends AWSAntTask {
     /**
      * Uploads files to S3
      */
-    public void execute() {
+    @Override
+	public void execute() {
         checkParameters();
         TransferManager transferManager;
         if (awsSecretKey != null && awsAccessKeyId != null) {
@@ -177,7 +178,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
                         if (!continueOnFail) {
                             throw new BuildException(
                                     "Error. The file that failed to upload was: "
-                                            + file.getName(), e);
+                                            + file.getName() + ": " + e, e);
                         } else {
                             System.err.println("The file " + file.getName()
                                     + " failed to upload. Continuing...");
@@ -185,7 +186,7 @@ public class UploadFileSetToS3Task extends AWSAntTask {
                     }
                 }
             } finally {
-                transferManager.shutdownNow();
+                transferManager.shutdownNow(false);
             }
         }
     }
