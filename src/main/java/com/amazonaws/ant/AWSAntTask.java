@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 import com.amazonaws.AmazonWebServiceClient;
@@ -28,8 +27,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.util.StringUtils;
+import com.amazonaws.regions.RegionUtils;
 
 /**
  * Base class for AWS-related Ant tasks. Handles all shared logic.
@@ -90,7 +88,7 @@ public abstract class AWSAntTask extends Task {
         T client = (T) cache.get(key);
         if(client == null) {
             T newClient = createClient(clientClass);
-            Region region = getRegion();
+            Region region = RegionUtils.getRegion(this.awsRegion);
             if(region != null) {
                 newClient.setRegion(region);
             }
@@ -99,19 +97,6 @@ public abstract class AWSAntTask extends Task {
         } else {
             return client;
         }
-    }
-    
-    private Region getRegion() {
-        if(StringUtils.isNullOrEmpty(this.awsRegion)) {
-            return null;
-        }
-        Regions regions = Regions.DEFAULT_REGION;
-        try {
-            regions = Regions.fromName(this.awsRegion);
-        } catch(IllegalArgumentException ex) {
-            throw new BuildException("Error in parameter configuration: The specified awsRegion [" + this.awsRegion + "] is not valid\n");
-        }
-        return Region.getRegion(regions);
     }
     
     /**
