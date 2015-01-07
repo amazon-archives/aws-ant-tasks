@@ -15,7 +15,9 @@
 package com.amazonaws.ant;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.tools.ant.Task;
@@ -24,6 +26,8 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
 
 /**
  * Base class for AWS-related Ant tasks. Handles all shared logic.
@@ -34,6 +38,7 @@ public abstract class AWSAntTask extends Task {
     private static final String USER_AGENT_PREFIX = "AWS Ant Tasks/";
     protected String awsAccessKeyId;
     protected String awsSecretKey;
+    protected String awsRegion;
 
     /**
      * Sets AWS Access Key.
@@ -58,22 +63,36 @@ public abstract class AWSAntTask extends Task {
     public void setAWSSecretKey(String awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
     }
-
+    
+    /**
+     * Sets AWS Region.
+     * 
+     * @param awsRegion
+     *            The AWS Region to set.
+     */
+    public void setAWSRegion(String awsRegion) {
+        this.awsRegion = awsRegion;
+    }
     
     @SuppressWarnings("unchecked")
     public <T extends AmazonWebServiceClient> T getOrCreateClient(
             Class<T> clientClass) {
         if(getProject().getReference(CLIENT_CACHE_REFERENCE) == null) {
-            Map<Class<?>, Object> cache = 
-                    new HashMap<Class<?>, Object>();
+            Map<List<String>, Object> cache = new HashMap<List<String>, Object>();
             getProject().addReference(CLIENT_CACHE_REFERENCE, cache);
         }
-        Map<Class<?>, Object> cache =
-                getProject().getReference(CLIENT_CACHE_REFERENCE);
-        T client = (T) cache.get(clientClass);
+        Map<List<String>, Object> cache = getProject().getReference(CLIENT_CACHE_REFERENCE);
+        
+        List<String> key = Arrays.asList(clientClass.getName(), this.awsRegion);
+        
+        T client = (T) cache.get(key);
         if(client == null) {
             T newClient = createClient(clientClass);
-            cache.put(clientClass, newClient);
+            Region region = RegionUtils.getRegion(this.awsRegion);
+            if(region != null) {
+                newClient.setRegion(region);
+            }
+            cache.put(key, newClient);
             return newClient;
         } else {
             return client;
