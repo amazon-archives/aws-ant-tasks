@@ -13,7 +13,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.level>1.6</jdk.level>
-		<aws.sdk.version>1.9.14</aws.sdk.version>
+		<aws.sdk.version>1.9.24</aws.sdk.version>
 	</properties>
 
 	<dependencies>
@@ -133,7 +133,7 @@
 						<phase>integration-test</phase>
 						<configuration>
 							<tasks>
-								<property name="version" value="${version}" />
+								<property name="version" value="${project.version}" />
 								<ant antfile="integration-tests.xml" target="test.all" />
 							</tasks>
 						</configuration>

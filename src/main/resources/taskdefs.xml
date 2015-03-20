@@ -25,6 +25,6 @@
     <taskdef name="create-cloudformation-stack" classname="com.amazonaws.ant.cloudformation.CreateStackTask" />
     <taskdef name="set-cloudformation-stack-policy" classname="com.amazonaws.ant.cloudformation.SetStackPolicyTask" />
     <taskdef name="update-cloudformation-stack" classname="com.amazonaws.ant.cloudformation.UpdateStackTask" />
-    <taskdef name="let-cloudformation-stack-reach-status"
-        classname="com.amazonaws.ant.cloudformation.WaitForStackToReachStateTask" />
+    <taskdef name="let-cloudformation-stack-reach-status" classname="com.amazonaws.ant.cloudformation.WaitForStackToReachStateTask" />
+    <taskdef name="describe-cloudformation-stack" classname="com.amazonaws.ant.cloudformation.DescribeStackTask" />
 </antlib>
