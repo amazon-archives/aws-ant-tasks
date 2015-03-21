@@ -37,7 +37,7 @@ public class DescribeStackTask extends AWSAntTask {
      *            a StackItem object.
      */
     public void addConfiguredStackParameter(StackItem stackParameter) {
-        parameters.put(stackParameter.name, stackParameter);
+        parameters.put(stackParameter.getName(), stackParameter);
     }
     
     /**
@@ -47,7 +47,7 @@ public class DescribeStackTask extends AWSAntTask {
      *            a StackItem object.
      */
     public void addConfiguredStackTag(StackItem stackTag) {
-        tags.put(stackTag.name, stackTag);
+        tags.put(stackTag.getName(), stackTag);
     }
     
     private void checkParams() {
@@ -82,7 +82,7 @@ public class DescribeStackTask extends AWSAntTask {
                 for(Parameter parameter : stack.getParameters()) {
                     StackItem item = parameters.remove(parameter.getParameterKey());
                     if(item != null) {
-                        getProject().setNewProperty(item.getName(), parameter.getParameterValue());
+                        getProject().setNewProperty(item.getProperty(), parameter.getParameterValue());
                     }
                 }
             }
@@ -101,7 +101,7 @@ public class DescribeStackTask extends AWSAntTask {
             }
             
             for(StackItem item : tags.values()) {
-                getProject().setNewProperty(item.getName(), item.getDefault());
+                getProject().setNewProperty(item.getProperty(), item.getDefault());
             }
         } catch (Exception e) {
             throw new BuildException(
