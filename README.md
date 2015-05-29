@@ -72,6 +72,7 @@ Available attributes:
 | bucketName     | The name of your bucket in S3                                                                        | Yes.                                                                                                                                                                                                                 |
 | keyPrefix      | A prefix to append to the beginning of all keys.                                                     | No. If specified, the keys of the files you upload will be of the format: keyPrefix+fileName                                                                                                                         |
 | continueOnFail | Whether to continue uploading files if one file in the fileset fails to upload. Defaults to "false". | No. Defaults to "false". If set to "true", the task will continue to upload the rest of the files in the set, even if one fails to upload. If left "false", an exception will be thrown if one file fails to upload. |
+| printStatusUpdates | Display progress during uploading                                                                | No. If not specified, no progress will be displayed |
 
 Nested elements:
 

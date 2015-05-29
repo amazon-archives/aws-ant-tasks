@@ -133,14 +133,14 @@ public class DownloadFileFromS3Task extends AWSAntTask {
             file.createNewFile();
         } catch (IOException e) {
             throw new BuildException(
-                    "IOException while attempting to create new file: "
+                    "IOException while attempting to create new file " + file + ": "
                             + e.getMessage());
         }
         try {
             client.getObject(new GetObjectRequest(bucketName, key), file);
         } catch (Exception e) {
             throw new BuildException(
-                    "Exception while trying to download object: "
+                    "Exception while trying to download object: " + bucketName + "/" + key + ": " + " to file " + file
                             + e.getMessage(), e);
         }
         System.out.println("Download successful");

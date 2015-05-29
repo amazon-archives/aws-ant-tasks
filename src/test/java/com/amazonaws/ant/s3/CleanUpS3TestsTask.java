@@ -53,14 +53,15 @@ public class CleanUpS3TestsTask extends AWSAntTask {
         }
     }
 
-    public void execute() {
+    @Override
+	public void execute() {
         checkParams();
         File file1 = new File(firstFile);
-        if (file1 != null && file1.exists()) {
+        if (file1.exists()) {
             file1.delete();
         }
         File file2 = new File(secondFile);
-        if (file2 != null && file2.exists()) {
+        if (file2.exists()) {
             file2.delete();
         }
         AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
