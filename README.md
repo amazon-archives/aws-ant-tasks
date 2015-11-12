@@ -156,6 +156,7 @@ Sets up an application in AWS Elastic Beanstalk. Two attributes, both required: 
 |------------------------|----------------------------------------------------------|----------------------------------------------------------------------------|
 | awsAccessKeyId         | Your AWS Access Key credential                           | No. If not specified, the task will defer to the default credential chain. |
 | awsSecretKey           | Your AWS Secret Key credential                           | No. If not specified, the task will defer to the default credential chain. |
+| awsRegion        | The [region](http://docs.aws.amazon.com/general/latest/gr/rande.html#elasticbeanstalk_region) of your AWS Elastic Beanstalk Application       | No                                                                        |
 | applicationName        | The name of your AWS Elastic Beanstalk Application       | Yes                                                                        |
 | applicationDescription | A description for your AWS Elastic Beanstalk application | Yes                                                                        |
 
@@ -178,6 +179,7 @@ Parameters:
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | awsAccessKeyId        | Your AWS Access Key credential                                                                                                                                                                               | No. If not specified, the task will defer to the default credential chain.               |
 | awsSecretKey          | Your AWS Secret Key credential                                                                                                                                                                               | No. If not specified, the task will defer to the default credential chain.               |
+| awsRegion        | The [region](http://docs.aws.amazon.com/general/latest/gr/rande.html#elasticbeanstalk_region) of your AWS Elastic Beanstalk Application       | No                                                                        |
 | applicationName       | The name of the application to attach this environment to                                                                                                                                                    | Yes                                                                                      |
 | environmentName       | The name of this environment                                                                                                                                                                                 | Yes                                                                                      |
 | environmentDescription| A description of this environment                                                                                                                                                                            | Yes                                                                                      |
@@ -204,7 +206,7 @@ More advanced Worker tier:
 
 ```
 <create-beanstalk-env applicationName="mybeanstalkapp" environmentName="mybeanstalkenv" environmentDescription="myEnv" solutionStackName="64bit AmazonLinux running Tomcat 6" tierName="Worker" tierType="SQS/HTTP" tierVersion="1.0">
-     <Setting namespace="aws:autoscaling:launchconfiguration" optionName="IAmInstanceProfile" value="ElasticBeanstalkProfile />
+     <Setting namespace="aws:autoscaling:launchconfiguration" optionName="IAmInstanceProfile" value="ElasticBeanstalkProfile" />
      <Setting namespace="aws:elasticbeanstalk:sqsd" optionName="WorkerQueueURL" value="sqsd.elasticbeanstalk.us-east-1.amazon.com" />
      <Setting namespace="aws:elasticbeanstalk:sqsd" optionName="HttpPath" value="/" />
      <Setting namespace="aws:elasticbeanstalk:sqsd" optionName="MimeType" value="application/json" />
@@ -226,6 +228,7 @@ This task creates a new version of your application with an application file you
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | awsAccessKeyId         | Your AWS Access Key credential                                                                                                                                                                    | No. If not specified, the task will defer to the default credential chain. |
 | awsSecretKey           | Your AWS Secret Key credential                                                                                                                                                                    | No. If not specified, the task will defer to the default credential chain. |
+| awsRegion        | The [region](http://docs.aws.amazon.com/general/latest/gr/rande.html#elasticbeanstalk_region) of your AWS Elastic Beanstalk Application       | No                                                                        |
 | bucketName             | This is either: The name of the bucket you want to upload your application file to, or the bucket your application is already in. Either way , it must be a valid bucket that you have access to. | Yes.                                                                       |
 | versionLabel           | New version label for the deployed application version                                                                                                                                            | Yes.                                                                       |
 | versionDescription     | Description of the new version of this application                                                                                                                                                | Yes.                                                                       |
@@ -236,7 +239,7 @@ This task creates a new version of your application with an application file you
 
 Example code specifying a file you've already uploaded to S3:
 ```
-<deploy-beanstalk-app bucketName="mybucket" key="application/myapp.war" versionLabel="Version1" versionDescription="myversion" applicationName="mybeanstalkapp" environmentName="mybeanstalkenv />
+<deploy-beanstalk-app bucketName="mybucket" key="application/myapp.war" versionLabel="Version1" versionDescription="myversion" applicationName="mybeanstalkapp" environmentName="mybeanstalkenv" />
 ```
 Example code uploading your own local file:
 ```
