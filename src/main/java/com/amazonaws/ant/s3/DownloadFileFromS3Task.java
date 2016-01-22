@@ -162,7 +162,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
                     String key = objectSummary.getKey();
                     if (key.startsWith(keyPrefix)) {
                         downloadObjectToFile(client, new File(dir
-                                + File.pathSeparator + key), key);
+                                + File.separator + key), key);
                     }
                 }
 
