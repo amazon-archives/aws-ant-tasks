@@ -128,7 +128,9 @@ public class DownloadFileFromS3Task extends AWSAntTask {
                 + " from bucket " + bucketName + " to file " + file + "...");
         try {
             if (file.getParentFile() != null) {
-                file.getParentFile().mkdirs();
+                if(!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                    throw new BuildException("Could not create directory " + file.getParentFile());
+                }
             }
             file.createNewFile();
         } catch (IOException e) {
@@ -136,6 +138,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
                     "IOException while attempting to create new file " + file + ": "
                             + e.getMessage());
         }
+
         try {
             client.getObject(new GetObjectRequest(bucketName, key), file);
         } catch (Exception e) {
@@ -162,7 +165,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
                     String key = objectSummary.getKey();
                     if (key.startsWith(keyPrefix)) {
                         downloadObjectToFile(client, new File(dir
-                                + File.pathSeparator + key), key);
+                                + File.separator + key), key);
                     }
                 }
 
