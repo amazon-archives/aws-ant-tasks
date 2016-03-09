@@ -39,8 +39,7 @@ public class DownloadFromS3TaskTests {
     private static final String KEY_PREFIX = "deployfilesettos3test/";
     private static final String TESTFILE_SUFFIX = ".txt";
     private static final String USER_DIR = System.getProperty("user.dir");
-    private static final String DIR = USER_DIR + File.pathSeparator
-            + KEY_PREFIX;
+    private static final String DIR = USER_DIR + File.separator + KEY_PREFIX;
     private static File testFile1, testFile2, testFile3;
     private static AmazonS3Client client;
     private File resFile1, resFile2, resFile3;
