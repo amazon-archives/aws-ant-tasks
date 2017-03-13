@@ -16,8 +16,13 @@ package com.amazonaws.ant.s3;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import com.amazonaws.Request;
+import com.amazonaws.Response;
+import com.amazonaws.handlers.RequestHandler2;
+import com.amazonaws.services.s3.S3ClientOptions;
 import org.apache.tools.ant.BuildException;
 
 import com.amazonaws.ant.AWSAntTask;
@@ -148,6 +153,7 @@ public class DownloadFileFromS3Task extends AWSAntTask {
 
     public void execute() {
         AmazonS3Client client = getOrCreateClient(AmazonS3Client.class);
+        this.addRequestHeader(client);
         if (key != null) {
             File targetFile = file == null ? new File(key) : file;
             downloadObjectToFile(client, targetFile, key);
@@ -174,5 +180,27 @@ public class DownloadFileFromS3Task extends AWSAntTask {
                 }
             }
         }
+    }
+
+    private void addRequestHeader(AmazonS3Client client) {
+
+        RequestHandler2 requestHandler2 = new RequestHandler2() {
+            @Override
+            public void beforeRequest(Request<?> request) {
+                request.addHeader("Date", Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().toString());
+            }
+
+            @Override
+            public void afterResponse(Request<?> request, Response<?> response) {
+
+            }
+
+            @Override
+            public void afterError(Request<?> request, Response<?> response, Exception e) {
+
+            }
+        };
+
+        client.addRequestHandler(requestHandler2);
     }
 }
